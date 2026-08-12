@@ -14,12 +14,9 @@ import {
   Award,
   Zap,
   ArrowRight,
-<<<<<<< HEAD
-  Check
-=======
+  Check,
   PhoneCall,
   MessageCircle
->>>>>>> jayaninew
 } from 'lucide-react';
 
 const DonateResources = () => {

@@ -13,14 +13,11 @@ import {
   CheckSquare,
   Home as HomeIcon,
   Maximize2,
-<<<<<<< HEAD
   Trash2,
-  AlertTriangle
-=======
+  AlertTriangle,
   MessageCircle,
   PhoneCall,
   ChevronLeft
->>>>>>> jayaninew
 } from 'lucide-react';
 
 const Boarding = () => {
