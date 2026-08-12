@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { 
@@ -13,11 +14,17 @@ import {
   Award,
   Zap,
   ArrowRight,
+<<<<<<< HEAD
   Check
+=======
+  PhoneCall,
+  MessageCircle
+>>>>>>> jayaninew
 } from 'lucide-react';
 
 const DonateResources = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Lists
   const [resources, setResources] = useState([]);
@@ -42,6 +49,18 @@ const DonateResources = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const updateSelectedResourceInUrl = (resourceId) => {
+    const params = new URLSearchParams(searchParams);
+    if (resourceId) {
+      params.set('selected', String(resourceId));
+    } else {
+      params.delete('selected');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const toPhoneDigits = (phoneNumber) => String(phoneNumber || '').replace(/[^\d]/g, '');
 
   const categories = [
     'Textbooks', 'Calculators', 'Stationery', 'Clothes', 
@@ -73,12 +92,23 @@ const DonateResources = () => {
 
   useEffect(() => {
     fetchResources();
-  }, [category, type]);
+  }, [search, category, type]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchResources();
-  };
+  useEffect(() => {
+    const selectedId = searchParams.get('selected');
+    if (!selectedId) {
+      return;
+    }
+
+    api.get(`/resources/${selectedId}`)
+      .then((details) => {
+        setSelectedResource(details);
+        if (details.type && type !== details.type) {
+          setType(details.type);
+        }
+      })
+      .catch(() => setError('Selected resource could not be loaded.'));
+  }, [searchParams]);
 
   const handleCreateResource = async (e) => {
     e.preventDefault();
@@ -163,8 +193,8 @@ const DonateResources = () => {
         {/* Left Side: Filter and Cards */}
         <div className="lg:col-span-8 space-y-6">
           {/* Search bar and Filters */}
-          <form onSubmit={handleSearchSubmit} className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <div className="md:col-span-5 relative">
+          <div className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-6 relative">
               <input 
                 type="text" 
                 placeholder="Search resources..." 
@@ -187,7 +217,7 @@ const DonateResources = () => {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <select 
                 value={category} 
                 onChange={(e) => setCategory(e.target.value)}
@@ -197,13 +227,7 @@ const DonateResources = () => {
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-
-            <div className="md:col-span-2">
-              <button type="submit" className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-350 py-2.5 rounded-xl text-xs font-semibold transition">
-                Filter
-              </button>
-            </div>
-          </form>
+          </div>
 
           {/* Cards List */}
           {loading && resources.length === 0 ? (
@@ -215,12 +239,7 @@ const DonateResources = () => {
               {resources.map(item => (
                 <div 
                   key={item.id}
-                  onClick={async () => {
-                    setLoading(true);
-                    const details = await api.get(`/resources/${item.id}`);
-                    setSelectedResource(details);
-                    setLoading(false);
-                  }}
+                  onClick={() => updateSelectedResourceInUrl(item.id)}
                   className={`bg-slate-900/60 border rounded-3xl p-5 hover:border-slate-700/60 transition group cursor-pointer flex flex-col justify-between space-y-4 ${selectedResource?.id === item.id ? 'border-emerald-600 ring-1 ring-emerald-600' : 'border-slate-850'}`}
                 >
                   <div className="space-y-3">
@@ -264,7 +283,7 @@ const DonateResources = () => {
                   <h2 className="text-lg font-bold font-outfit text-white mt-2 leading-tight">{selectedResource.title}</h2>
                 </div>
                 <button 
-                  onClick={() => setSelectedResource(null)}
+                  onClick={() => updateSelectedResourceInUrl(null)}
                   className="text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
                 >
                   <X size={16} />
@@ -294,6 +313,32 @@ const DonateResources = () => {
                   <Phone size={14} className="text-emerald-400" />
                   <span>{selectedResource.owner_phone}</span>
                 </p>
+                {selectedResource.owner_phone && (
+                  <div className="flex items-center gap-2 pt-1">
+                    <a
+                      href={`https://wa.me/${toPhoneDigits(selectedResource.owner_phone)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-emerald-950/60 border border-emerald-900/60 text-emerald-400 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                    >
+                      <MessageCircle size={12} />
+                      <span>WhatsApp</span>
+                    </a>
+                    <a
+                      href={`tel:${selectedResource.owner_phone}`}
+                      className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                    >
+                      <PhoneCall size={12} />
+                      <span>Call</span>
+                    </a>
+                    <a
+                      href={`sms:${selectedResource.owner_phone}`}
+                      className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold"
+                    >
+                      SMS
+                    </a>
+                  </div>
+                )}
                 <span className="text-[9px] text-slate-500 block">Listed by user: {selectedResource.owner_name}</span>
               </div>
 
@@ -333,6 +378,13 @@ const DonateResources = () => {
                         </div>
                         <div className="text-[10px] text-slate-400 border-t border-slate-900 pt-2 flex items-center justify-between">
                           <span className="flex items-center gap-1"><Phone size={10} className="text-emerald-400" /> {match.owner_phone} ({match.owner_name})</span>
+                          {match.owner_phone && (
+                            <span className="flex items-center gap-2">
+                              <a href={`https://wa.me/${toPhoneDigits(match.owner_phone)}`} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-emerald-300">WA</a>
+                              <a href={`tel:${match.owner_phone}`} className="text-slate-300 hover:text-white">Call</a>
+                              <a href={`sms:${match.owner_phone}`} className="text-slate-300 hover:text-white">SMS</a>
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}

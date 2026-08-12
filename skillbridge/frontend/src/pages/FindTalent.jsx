@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { 
@@ -13,11 +14,14 @@ import {
   Calendar,
   Send,
   Zap,
-  TrendingUp
+  TrendingUp,
+  PhoneCall,
+  MessageCircle
 } from 'lucide-react';
 
 const FindTalent = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Lists
   const [talents, setTalents] = useState([]);
@@ -31,7 +35,8 @@ const FindTalent = () => {
   const [skill, setSkill] = useState('');
   const [minRating, setMinRating] = useState('');
   const [minOppScore, setMinOppScore] = useState('');
-  const [userType, setUserType] = useState('STUDENT'); // default to searching students
+  const initialUserType = searchParams.get('userType') === 'COMMUNITY_MEMBER' ? 'COMMUNITY_MEMBER' : 'STUDENT';
+  const [userType, setUserType] = useState(initialUserType); // default to searching students
 
   // Hire Form Fields
   const [hireTitle, setHireTitle] = useState('');
@@ -43,6 +48,21 @@ const FindTalent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const updateTalentSelectionInUrl = (talentId, type = userType) => {
+    const params = new URLSearchParams(searchParams);
+    if (type) {
+      params.set('userType', type);
+    }
+    if (talentId) {
+      params.set('selected', String(talentId));
+    } else {
+      params.delete('selected');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const toPhoneDigits = (phoneNumber) => String(phoneNumber || '').replace(/[^\d]/g, '');
 
   const fetchTalents = async () => {
     try {
@@ -70,11 +90,40 @@ const FindTalent = () => {
 
   useEffect(() => {
     fetchTalents();
-  }, [userType, minRating, minOppScore]);
+  }, [userType, search, skill, minRating, minOppScore]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchTalents();
+  useEffect(() => {
+    const selectedId = searchParams.get('selected');
+    const queryType = searchParams.get('userType');
+
+    if (queryType === 'STUDENT' || queryType === 'COMMUNITY_MEMBER') {
+      if (queryType !== userType) {
+        setUserType(queryType);
+      }
+    }
+
+    if (!selectedId) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    api.get(`/talents/${selectedId}`)
+      .then((details) => {
+        setSelectedTalent(details);
+        if (details.user_type && details.user_type !== userType) {
+          setUserType(details.user_type);
+        }
+      })
+      .catch(() => {
+        setError('Selected worker profile could not be loaded.');
+      })
+      .finally(() => setLoading(false));
+  }, [searchParams]);
+
+  const handleUserTypeSelect = (type) => {
+    setUserType(type);
+    updateTalentSelectionInUrl(null, type);
   };
 
   const handleHireSubmit = async (e) => {
@@ -137,13 +186,13 @@ const FindTalent = () => {
           {/* Switcher search types */}
           <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-2xl border border-slate-800">
             <button
-              onClick={() => setUserType('STUDENT')}
+              onClick={() => handleUserTypeSelect('STUDENT')}
               className={`py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition ${userType === 'STUDENT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Search Student Talent
             </button>
             <button
-              onClick={() => setUserType('COMMUNITY_MEMBER')}
+              onClick={() => handleUserTypeSelect('COMMUNITY_MEMBER')}
               className={`py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition ${userType === 'COMMUNITY_MEMBER' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Search Community services
@@ -151,7 +200,7 @@ const FindTalent = () => {
           </div>
 
           {/* Search/Filter Bar */}
-          <form onSubmit={handleSearchSubmit} className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
             <div className="md:col-span-4 relative">
               <input 
                 type="text" 
@@ -187,11 +236,18 @@ const FindTalent = () => {
             </div>
 
             <div className="md:col-span-3">
-              <button type="submit" className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-350 py-2.5 rounded-xl text-xs font-semibold transition">
-                Apply Filters
-              </button>
+              <select 
+                value={minRating} 
+                onChange={(e) => setMinRating(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2.5 text-xs focus:border-emerald-500 focus:outline-none text-slate-400"
+              >
+                <option value="">Min Rating</option>
+                <option value="3">3+ Stars</option>
+                <option value="4">4+ Stars</option>
+                <option value="4.5">4.5+ Stars</option>
+              </select>
             </div>
-          </form>
+          </div>
 
           {/* Cards list */}
           {loading && talents.length === 0 ? (
@@ -203,12 +259,7 @@ const FindTalent = () => {
               {talents.map(talent => (
                 <div 
                   key={talent.id}
-                  onClick={async () => {
-                    setLoading(true);
-                    const details = await api.get(`/talents/${talent.id}`);
-                    setSelectedTalent(details);
-                    setLoading(false);
-                  }}
+                  onClick={() => updateTalentSelectionInUrl(talent.id, talent.user_type)}
                   className={`bg-slate-900/60 border rounded-3xl p-5 hover:border-slate-700/60 transition group cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${selectedTalent?.id === talent.id ? 'border-emerald-600 ring-1 ring-emerald-600' : 'border-slate-850'}`}
                 >
                   <div className="flex items-center gap-4">
@@ -271,7 +322,7 @@ const FindTalent = () => {
                   </div>
                 </div>
                 <button 
-                  onClick={() => setSelectedTalent(null)}
+                  onClick={() => updateTalentSelectionInUrl(null, userType)}
                   className="text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
                 >
                   <X size={16} />
@@ -339,6 +390,37 @@ const FindTalent = () => {
                     </div>
                   </div>
                 )}
+
+                <div className="space-y-2 bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Contact</span>
+                  <p className="text-xs text-slate-200 font-semibold">{selectedTalent.phone || 'Phone not provided'}</p>
+                  {selectedTalent.phone && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <a
+                        href={`https://wa.me/${toPhoneDigits(selectedTalent.phone)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-emerald-950/60 border border-emerald-900/60 text-emerald-400 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                      >
+                        <MessageCircle size={12} />
+                        <span>WhatsApp</span>
+                      </a>
+                      <a
+                        href={`tel:${selectedTalent.phone}`}
+                        className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                      >
+                        <PhoneCall size={12} />
+                        <span>Call</span>
+                      </a>
+                      <a
+                        href={`sms:${selectedTalent.phone}`}
+                        className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold"
+                      >
+                        SMS
+                      </a>
+                    </div>
+                  )}
+                </div>
 
                 {/* Direct Action buttons */}
                 {selectedTalent.id !== user.id && (

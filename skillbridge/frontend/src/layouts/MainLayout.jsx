@@ -59,6 +59,12 @@ const MainLayout = ({ children }) => {
     navigate('/');
   };
 
+  const handleBackToHome = () => {
+    alert("You are logging out. Returning to home page.");
+    logout();
+    navigate('/');
+  };
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Gigs / Jobs Board', path: '/gigs', icon: Briefcase },
@@ -110,7 +116,7 @@ const MainLayout = ({ children }) => {
 
         {/* User Mini Profile */}
         {user && (
-          <div className="px-6 py-4 border-b border-slate-800 flex items-center gap-3">
+          <Link to="/profile" className="px-6 py-4 border-b border-slate-800 flex items-center gap-3 hover:bg-slate-800/40 transition">
             <div className="relative">
               <img 
                 src={user.profile_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.full_name}`} 
@@ -129,6 +135,19 @@ const MainLayout = ({ children }) => {
                 )}
               </span>
             </div>
+          </Link>
+        )}
+
+        {/* Back to Home button below profile card */}
+        {user && (
+          <div className="px-4 py-2 border-b border-slate-800">
+            <button
+              onClick={handleBackToHome}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-slate-200 transition text-xs font-semibold"
+            >
+              <HomeIcon size={16} className="text-slate-500" />
+              <span>Back to Home</span>
+            </button>
           </div>
         )}
 

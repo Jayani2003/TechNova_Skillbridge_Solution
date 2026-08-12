@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Sparkles, Key, Mail, Zap, ArrowRight } from 'lucide-react';
+import { Shield, Sparkles, Key, Mail, Zap, ArrowRight, ChevronLeft } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -46,6 +46,16 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center py-12 px-6">
+      <div className="w-full max-w-md mb-4">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+        >
+          <ChevronLeft size={14} />
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
       {/* Platform Title */}
       <Link to="/" className="flex items-center gap-3 mb-8">
         <div className="bg-emerald-600 w-10 h-10 rounded-xl text-white font-bold font-outfit text-xl flex items-center justify-center shadow-lg shadow-emerald-950/40">

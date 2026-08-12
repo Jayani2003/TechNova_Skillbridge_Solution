@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import api from '../services/api';
-import { MapPin, Info, ArrowRight, ShieldAlert } from 'lucide-react';
+import { 
+  MapPin, 
+  Info, 
+  ArrowRight, 
+  ShieldAlert, 
+  Coins, 
+  Clock, 
+  BookOpen, 
+  Star, 
+  User, 
+  ShieldCheck, 
+  Hammer, 
+  HelpCircle, 
+  Gift, 
+  Calendar 
+} from 'lucide-react';
 
 const Nearby = () => {
   const [opportunities, setOpportunities] = useState([]);
@@ -48,7 +64,7 @@ const Nearby = () => {
         <h1 className="text-3xl font-extrabold font-outfit text-white">Nearby Opportunities</h1>
         <p className="text-sm text-slate-400 mt-1 flex items-center gap-1.5">
           <Info size={14} className="text-emerald-400" />
-          <span>Approximate locations plotted. Resident addresses are shifted to ensure personal privacy.</span>
+          <span>Map includes gigs, boarding, donation offers/requests, student workers, and community workers. Locations are slightly shifted for privacy.</span>
         </p>
       </div>
 
@@ -84,13 +100,108 @@ const Nearby = () => {
                   icon={createMarkerIcon(item.color)}
                 >
                   <Popup className="custom-popup bg-slate-900 text-slate-200">
-                    <div className="p-2 space-y-2 max-w-xs">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">
-                        {item.itemType}
-                      </span>
-                      <h4 className="font-bold text-slate-100 text-xs block leading-tight">{item.title}</h4>
-                      <p className="text-[10px] text-slate-400">{item.subtitle}</p>
-                      <p className="text-[9px] text-slate-500 flex items-center gap-0.5"><MapPin size={8} /> {item.location}</p>
+                    <div className="p-3.5 space-y-3 max-w-[280px] sm:max-w-xs text-slate-200">
+                      {/* Header */}
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 px-2 py-0.5 bg-slate-950/60 rounded-md border border-slate-800">
+                          {item.itemLabel || item.itemType}
+                        </span>
+                        {item.itemType === 'GIG' && <Coins size={12} className="text-blue-400" />}
+                        {item.itemType === 'BOARDING' && <BookOpen size={12} className="text-yellow-400" />}
+                        {item.itemType === 'DONATION' && <Gift size={12} className="text-green-400" />}
+                        {item.itemType === 'REQUEST' && <HelpCircle size={12} className="text-pink-400" />}
+                        {item.itemType === 'STUDENT_WORKER' && <User size={12} className="text-purple-400" />}
+                        {item.itemType === 'COMMUNITY_WORKER' && <User size={12} className="text-orange-400" />}
+                      </div>
+
+                      {/* Title & Subtitle */}
+                      <div className="space-y-0.5">
+                        {item.route ? (
+                          <Link to={item.route} className="font-extrabold text-slate-100 hover:text-emerald-400 hover:underline text-xs block leading-tight transition">
+                            {item.title}
+                          </Link>
+                        ) : (
+                          <h4 className="font-extrabold text-slate-100 text-xs block leading-tight">{item.title}</h4>
+                        )}
+                        <p className="text-[10px] font-semibold text-emerald-400">{item.subtitle}</p>
+                      </div>
+
+                      {/* Description / Bio Snippet */}
+                      {(item.description || item.bio) && (
+                        <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed italic bg-slate-950/30 p-2 rounded-xl border border-slate-850">
+                          "{item.description || item.bio}"
+                        </p>
+                      )}
+
+                      {/* Dynamic Detailed Specs */}
+                      <div className="space-y-1 pt-1 border-t border-slate-850/60 text-[10px] text-slate-300">
+                        {/* Boarding House Details */}
+                        {item.itemType === 'BOARDING' && (
+                          <>
+                            <div className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-yellow-400" /> <span>Rooms capacity: {item.roomsCount}</span></div>
+                            {item.facilities && item.facilities.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {item.facilities.slice(0, 3).map(f => (
+                                  <span key={f} className="bg-slate-950 text-[9px] px-1.5 py-0.5 rounded border border-slate-850 text-slate-400">{f}</span>
+                                ))}
+                                {item.facilities.length > 3 && <span className="text-[8px] text-slate-500">+{item.facilities.length - 3}</span>}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Gig/Job Details */}
+                        {item.itemType === 'GIG' && (
+                          <>
+                            <div className="flex items-center gap-1.5"><Clock size={11} className="text-blue-400" /> <span>Duration: {item.duration}</span></div>
+                            <div className="flex items-center gap-1.5"><Calendar size={11} className="text-blue-400" /> <span>Deadline: {item.deadline}</span></div>
+                          </>
+                        )}
+
+                        {/* Resource Donation/Request Details */}
+                        {(item.itemType === 'DONATION' || item.itemType === 'REQUEST') && (
+                          <div className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-emerald-400" /> <span>Condition: <span className="font-semibold text-slate-200">{item.condition}</span></span></div>
+                        )}
+
+                        {/* Student Worker Details */}
+                        {item.itemType === 'STUDENT_WORKER' && (
+                          <>
+                            <div className="flex items-center gap-1.5"><BookOpen size={11} className="text-purple-400" /> <span>{item.faculty} ({item.academicYear})</span></div>
+                            {item.skills && item.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {item.skills.slice(0, 3).map(s => (
+                                  <span key={s} className="bg-slate-950 text-[9px] px-1.5 py-0.5 rounded border border-slate-850 text-slate-400">{s}</span>
+                                ))}
+                                {item.skills.length > 3 && <span className="text-[8px] text-slate-500">+{item.skills.length - 3}</span>}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Community Neighbor Details */}
+                        {item.itemType === 'COMMUNITY_WORKER' && (
+                          <>
+                            <div className="flex items-center gap-1.5"><Hammer size={11} className="text-orange-400" /> <span>Occupation: {item.occupation}</span></div>
+                            {item.businessName && <div className="flex items-center gap-1.5"><ShieldCheck size={11} className="text-orange-400" /> <span>Business: {item.businessName}</span></div>}
+                          </>
+                        )}
+                      </div>
+
+                      {/* Location & Link Button */}
+                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                        <span className="text-[9px] text-slate-500 flex items-center gap-0.5 truncate max-w-[130px]" title={item.location}>
+                          <MapPin size={9} /> {item.location}
+                        </span>
+                        {item.route && (
+                          <Link
+                            to={item.route}
+                            className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition shadow-md shadow-emerald-950/20"
+                          >
+                            <span>View Details</span>
+                            <ArrowRight size={10} />
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </Popup>
                 </Marker>
@@ -114,11 +225,11 @@ const Nearby = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-green-500 border border-slate-950"></span>
-                <span className="text-slate-350">Free Donations</span>
+                <span className="text-slate-350">Donation Offers</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-pink-500 border border-slate-950"></span>
-                <span className="text-slate-350">Supply Requests</span>
+                <span className="text-slate-350">Donation Requests</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-purple-500 border border-slate-950"></span>
@@ -138,9 +249,15 @@ const Nearby = () => {
                 <div key={item.id} className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex items-start gap-3">
                   <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: item.color }}></div>
                   <div className="overflow-hidden">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide block">{item.itemType}</span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide block">{item.itemLabel || item.itemType}</span>
                     <span className="font-bold text-xs text-slate-200 block truncate">{item.title}</span>
                     <span className="text-[10px] text-slate-400 block mt-0.5">{item.subtitle}</span>
+                    {item.route && (
+                      <Link to={item.route} className="text-[10px] font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 mt-1">
+                        <span>Open</span>
+                        <ArrowRight size={10} />
+                      </Link>
+                    )}
                   </div>
                 </div>
               ))}
