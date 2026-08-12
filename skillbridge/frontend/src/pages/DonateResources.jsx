@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Award,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Check
 } from 'lucide-react';
 
 const DonateResources = () => {
@@ -116,13 +117,16 @@ const DonateResources = () => {
   };
 
   const handleClaimResource = async (resourceId) => {
+    setError('');
+    setSuccess('');
     try {
       await api.put(`/resources/${resourceId}/status`, { status: 'DONATED' });
-      setSuccess('Item successfully marked as received! The platform impact metrics have been updated.');
+      setSuccess('Resource successfully marked as fulfilled/claimed! Platform impact metrics updated.');
       setSelectedResource(null);
       fetchResources();
     } catch (err) {
-      console.error(err);
+      console.error('Error claiming resource:', err);
+      setError(err.message || 'Error updating resource status.');
     }
   };
 
@@ -293,18 +297,21 @@ const DonateResources = () => {
                 <span className="text-[9px] text-slate-500 block">Listed by user: {selectedResource.owner_name}</span>
               </div>
 
-              {/* Action: Mark as received */}
-              {selectedResource.owner_id !== user.id && (
-                <div className="pt-2">
-                  <button
-                    onClick={() => handleClaimResource(selectedResource.id)}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
-                  >
-                    <Gift size={16} />
-                    <span>{selectedResource.type === 'DONATION' ? 'Mark Free Donation as Claimed' : 'Fulfill this Resource Request'}</span>
-                  </button>
-                </div>
-              )}
+              {/* Action: Mark as received / Fulfill */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleClaimResource(selectedResource.id)}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20 cursor-pointer active:scale-[0.99]"
+                >
+                  <Gift size={16} />
+                  <span>
+                    {selectedResource.owner_id === user?.id 
+                      ? `Mark My ${selectedResource.type === 'DONATION' ? 'Donation' : 'Request'} as Completed` 
+                      : (selectedResource.type === 'DONATION' ? 'Mark Free Donation as Claimed' : 'Fulfill this Resource Request')}
+                  </span>
+                </button>
+              </div>
 
               {/* Resource Matching Engine list (Only visible when viewing a REQUEST!) */}
               {selectedResource.type === 'REQUEST' && selectedResource.matches && selectedResource.matches.length > 0 && (

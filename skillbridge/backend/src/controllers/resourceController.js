@@ -170,24 +170,44 @@ exports.updateResourceStatus = async (req, res) => {
   }
 
   try {
-    const [check] = await db.query('SELECT owner_id, title, type FROM resources WHERE id = ?', [id]);
+    const [check] = await db.query(
+      `SELECT r.owner_id, r.title, r.type, u.full_name as current_user_name 
+       FROM resources r 
+       JOIN users u ON u.id = ? 
+       WHERE r.id = ?`, 
+      [userId, id]
+    );
+
     if (check.length === 0) {
       return res.status(404).json({ message: 'Resource not found.' });
     }
-    if (check[0].owner_id !== userId) {
-      return res.status(403).json({ message: 'You are not authorized to update this resource.' });
+
+    const resource = check[0];
+    const isOwner = resource.owner_id === userId;
+
+    // Allow status change if user is the owner OR if any authenticated user is claiming/fulfilling an available item to 'DONATED'
+    if (!isOwner && status !== 'DONATED') {
+      return res.status(403).json({ message: 'You are not authorized to perform this action.' });
     }
 
     await db.query('UPDATE resources SET status = ? WHERE id = ?', [status, id]);
     
-    // Notify users if relevant
-    if (status === 'DONATED') {
-      res.json({ message: 'Item marked as successfully shared/reused!' });
-    } else {
-      res.json({ message: 'Resource status updated.' });
+    // Send a notification to the resource owner if fulfilled by another community member
+    if (status === 'DONATED' && !isOwner) {
+      const notifTitle = resource.type === 'REQUEST' ? 'Resource Request Fulfilled!' : 'Donation Claimed!';
+      const notifContent = resource.type === 'REQUEST' 
+        ? `${resource.current_user_name} has fulfilled your request for "${resource.title}".`
+        : `${resource.current_user_name} has claimed your donation of "${resource.title}".`;
+
+      await db.query(
+        `INSERT INTO notifications (user_id, title, content) VALUES (?, ?, ?)`,
+        [resource.owner_id, notifTitle, notifContent]
+      );
     }
+
+    res.json({ message: 'Resource status updated successfully.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating resource.' });
+    console.error('Error updating resource status:', error);
+    res.status(500).json({ message: 'Error updating resource status.' });
   }
 };
