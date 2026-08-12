@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { 
@@ -16,11 +17,13 @@ import {
   UserCheck,
   Star,
   Zap,
-  TrendingUp
+  TrendingUp,
+  ArrowRight
 } from 'lucide-react';
 
 const Gigs = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Lists
   const [gigs, setGigs] = useState([]);
@@ -59,6 +62,16 @@ const Gigs = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const updateSelectedGigInUrl = (gigId) => {
+    const params = new URLSearchParams(searchParams);
+    if (gigId) {
+      params.set('selected', String(gigId));
+    } else {
+      params.delete('selected');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
   const categories = [
     'IT & Technology', 'Graphic Design', 'Education & Tutoring', 
     'Photography', 'Video Editing', 'Writing', 'Repairs', 
@@ -91,12 +104,7 @@ const Gigs = () => {
 
   useEffect(() => {
     fetchGigs();
-  }, [category, minBudget, maxBudget]);
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchGigs();
-  };
+  }, [search, category, minBudget, maxBudget]);
 
   const handleCreateGig = async (e) => {
     e.preventDefault();
@@ -211,15 +219,22 @@ const Gigs = () => {
     }
   };
 
-  // Check if hash matches scroll ID
+  // Support deep links: /gigs?selected=ID and legacy /gigs#ID
   useEffect(() => {
-    if (window.location.hash) {
-      const gigId = window.location.hash.replace('#', '');
-      if (gigId) {
-        api.get(`/gigs/${gigId}`).then(data => setSelectedGig(data)).catch(console.error);
-      }
+    const querySelected = searchParams.get('selected');
+    const hashSelected = window.location.hash ? window.location.hash.replace('#', '') : '';
+    const gigId = querySelected || hashSelected;
+
+    if (!gigId) {
+      return;
     }
-  }, [gigs]);
+
+    api.get(`/gigs/${gigId}`)
+      .then(data => setSelectedGig(data))
+      .catch(() => {
+        setError('Selected gig could not be loaded.');
+      });
+  }, [searchParams]);
 
   return (
     <div className="space-y-6 pb-12">
@@ -254,8 +269,8 @@ const Gigs = () => {
         {/* Left Side: Filter and Gig Cards */}
         <div className="lg:col-span-7 space-y-6">
           {/* Search bar and Filters */}
-          <form onSubmit={handleSearchSubmit} className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <div className="md:col-span-5 relative">
+          <div className="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-4 relative">
               <input 
                 type="text" 
                 placeholder="Search gigs..." 
@@ -266,7 +281,7 @@ const Gigs = () => {
               <Search className="absolute left-3 top-3 text-slate-500" size={14} />
             </div>
 
-            <div className="md:col-span-3">
+            <div className="md:col-span-4">
               <select 
                 value={category} 
                 onChange={(e) => setCategory(e.target.value)}
@@ -288,11 +303,15 @@ const Gigs = () => {
             </div>
 
             <div className="md:col-span-2">
-              <button type="submit" className="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-semibold transition">
-                Filter
-              </button>
+              <input 
+                type="number" 
+                placeholder="Max Budget" 
+                value={maxBudget}
+                onChange={(e) => setMaxBudget(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs focus:border-emerald-500 focus:outline-none text-slate-200"
+              />
             </div>
-          </form>
+          </div>
 
           {/* Gigs List */}
           {loading && gigs.length === 0 ? (
@@ -304,12 +323,7 @@ const Gigs = () => {
               {gigs.map(gig => (
                 <div 
                   key={gig.id}
-                  onClick={async () => {
-                    setLoading(true);
-                    const details = await api.get(`/gigs/${gig.id}`);
-                    setSelectedGig(details);
-                    setLoading(false);
-                  }}
+                  onClick={() => updateSelectedGigInUrl(gig.id)}
                   className={`bg-slate-900/60 border rounded-3xl p-5 hover:border-slate-700/60 transition group cursor-pointer ${selectedGig?.id === gig.id ? 'border-emerald-600 ring-1 ring-emerald-600' : 'border-slate-850'}`}
                 >
                   <div className="space-y-3">
@@ -350,7 +364,7 @@ const Gigs = () => {
                     <h2 className="text-xl font-bold font-outfit text-white mt-1 leading-tight">{selectedGig.title}</h2>
                   </div>
                   <button 
-                    onClick={() => setSelectedGig(null)}
+                    onClick={() => updateSelectedGigInUrl(null)}
                     className="text-slate-500 hover:text-slate-300 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
                   >
                     <X size={16} />
@@ -442,7 +456,7 @@ const Gigs = () => {
                           </div>
                         </div>
 
-                        <Link to={`/talent`} className="bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg transition">
+                        <Link to={`/talent?selected=${worker.id}&userType=STUDENT`} className="bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg transition">
                           <ArrowRight size={14} />
                         </Link>
                       </div>

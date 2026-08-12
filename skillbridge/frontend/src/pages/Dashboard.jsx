@@ -15,6 +15,7 @@ import {
   Bell,
   MessageSquare,
   ChevronRight,
+  ChevronLeft,
   PlusCircle,
   Coins,
   Globe
@@ -80,7 +81,18 @@ const Dashboard = () => {
   const isStudent = user.user_type === 'STUDENT';
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 pb-12">
+      {/* Back to Home Button */}
+      <div className="flex items-center">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 px-4 py-2.5 rounded-2xl shadow-md"
+        >
+          <ChevronLeft size={14} />
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
       {/* 1. Welcome banner */}
       <div className="relative bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-800/80 overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
@@ -112,15 +124,15 @@ const Dashboard = () => {
                   <span>Browse Gigs</span>
                   <ArrowRight size={16} />
                 </Link>
-                <Link to="/resources" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-3 rounded-2xl font-semibold text-sm transition">
-                  Request Resource
+                <Link to="/talent?userType=COMMUNITY_MEMBER" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-3 rounded-2xl font-semibold text-sm transition">
+                  Find Workers
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/gigs" className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-900/20">
-                  <PlusCircle size={18} />
-                  <span>Post a Gig</span>
+                  {/* <PlusCircle size={18} /> */}
+                  <span>Browse Gigs</span>
                 </Link>
                 <Link to="/talent" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-3 rounded-2xl font-semibold text-sm transition">
                   Find Workers
@@ -250,7 +262,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     
-                    <Link to={`/gigs#${gig.id}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
+                    <Link to={`/gigs?selected=${gig.id}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
                       <span>Apply Now</span>
                       <ArrowRight size={12} />
                     </Link>
@@ -292,7 +304,7 @@ const Dashboard = () => {
                       ))}
                     </div>
                     
-                    <Link to={`/talent`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
+                    <Link to={`/talent?selected=${talent.id}&userType=${talent.user_type}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
                       <span>View Profile</span>
                       <ArrowRight size={12} />
                     </Link>

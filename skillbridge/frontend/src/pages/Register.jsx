@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Sparkles, User, GraduationCap, MapPin, Mail, Key, Phone, ArrowRight } from 'lucide-react';
+import { Shield, Sparkles, User, GraduationCap, MapPin, Mail, Key, Phone, ArrowRight, ChevronLeft } from 'lucide-react';
 
 const Register = () => {
   const { register } = useAuth();
@@ -66,6 +66,16 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center py-12 px-6">
+      <div className="w-full max-w-2xl mb-4">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+        >
+          <ChevronLeft size={14} />
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
       {/* Brand Title */}
       <Link to="/" className="flex items-center gap-3 mb-8">
         <div className="bg-emerald-600 w-10 h-10 rounded-xl text-white font-bold font-outfit text-xl flex items-center justify-center shadow-lg shadow-emerald-950/40">

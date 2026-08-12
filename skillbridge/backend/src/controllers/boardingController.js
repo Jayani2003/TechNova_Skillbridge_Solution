@@ -74,6 +74,10 @@ exports.createBoarding = async (req, res) => {
   const { title, description, price, location, distance_from_faculty, available_date, rooms_count, facilities, contact_method, latitude, longitude } = req.body;
   const posterId = req.user.id;
 
+  if (req.user.user_type !== 'COMMUNITY_MEMBER') {
+    return res.status(403).json({ message: 'Only community members can list boarding facilities.' });
+  }
+
   if (!title || !description || !price || !location || !distance_from_faculty || !available_date || !contact_method) {
     return res.status(400).json({ message: 'Please enter all required boarding fields.' });
   }
