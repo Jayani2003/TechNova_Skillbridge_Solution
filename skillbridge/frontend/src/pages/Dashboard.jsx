@@ -113,14 +113,14 @@ const Dashboard = () => {
                   <ArrowRight size={16} />
                 </Link>
                 <Link to="/resources" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-3 rounded-2xl font-semibold text-sm transition">
-                  Request Resource
+                  Donations
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/gigs" className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-900/20">
-                  <PlusCircle size={18} />
-                  <span>Post a Gig</span>
+                  {/* <PlusCircle size={18} /> */}
+                  <span>Browse Gigs</span>
                 </Link>
                 <Link to="/talent" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-3 rounded-2xl font-semibold text-sm transition">
                   Find Workers

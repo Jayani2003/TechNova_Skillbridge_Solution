@@ -150,7 +150,7 @@ const Boarding = () => {
           className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-950/20"
         >
           <Plus size={18} />
-          <span>List Boarding Space</span>
+          <span>Add Boarding Space</span>
         </button>
       </div>
 
@@ -467,7 +467,7 @@ const Boarding = () => {
                 disabled={loading}
                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold text-sm transition mt-4 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
               >
-                {loading ? 'Submitting housing...' : 'Post Boarding Listing'}
+                {loading ? 'Submitting housing...' : 'Add to bording list'}
               </button>
             </form>
           </div>
