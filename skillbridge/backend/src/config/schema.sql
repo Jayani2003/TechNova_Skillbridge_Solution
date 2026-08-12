@@ -176,9 +176,13 @@ CREATE TABLE messages (
 CREATE TABLE notifications (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
+  sender_id INT NULL,
   title VARCHAR(150) NOT NULL,
   content TEXT NOT NULL,
+  related_id INT NULL,
+  related_type VARCHAR(50) NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -69,7 +69,7 @@ const Home = () => {
             Sign In
           </Link>
           <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-900/20">
-            Join Platform
+            Sign Up platform
           </Link>
         </div>
       </nav>
@@ -80,7 +80,7 @@ const Home = () => {
         <div className="lg:col-span-7 space-y-8">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-emerald-400 text-xs font-semibold tracking-wide">
             <Sparkles size={14} />
-            <span>Hyperlocal Economy Platform for Students & Neighbors</span>
+            <span>Hyperlocal Economy Platform for Students & Surroundings</span>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-extrabold font-outfit leading-tight tracking-tight text-white">

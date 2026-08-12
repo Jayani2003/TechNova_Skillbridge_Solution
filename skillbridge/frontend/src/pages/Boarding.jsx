@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { 
@@ -11,11 +12,17 @@ import {
   Tag,
   CheckSquare,
   Home as HomeIcon,
-  Maximize2
+  Maximize2,
+  Trash2,
+  AlertTriangle,
+  MessageCircle,
+  PhoneCall,
+  ChevronLeft
 } from 'lucide-react';
 
 const Boarding = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Lists
   const [boardings, setBoardings] = useState([]);
@@ -23,6 +30,8 @@ const Boarding = () => {
   
   // Form modal
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Filters
   const [maxPrice, setMaxPrice] = useState('');
@@ -44,6 +53,20 @@ const Boarding = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const canCreateBoarding = user?.user_type === 'COMMUNITY_MEMBER';
+
+  const updateSelectedBoardingInUrl = (boardingId) => {
+    const params = new URLSearchParams(searchParams);
+    if (boardingId) {
+      params.set('selected', String(boardingId));
+    } else {
+      params.delete('selected');
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const toPhoneDigits = (phoneNumber) => String(phoneNumber || '').replace(/[^\d]/g, '');
 
   const facilityOptions = [
     'Wi-Fi', 'Water', 'Electricity', 'Furnished', 
@@ -76,6 +99,17 @@ const Boarding = () => {
     fetchBoardings();
   }, [maxPrice, maxDistance, rooms, selectedFacilities]);
 
+  useEffect(() => {
+    const selectedId = searchParams.get('selected');
+    if (!selectedId) {
+      return;
+    }
+
+    api.get(`/boarding/${selectedId}`)
+      .then((details) => setSelectedBoarding(details))
+      .catch(() => setError('Selected boarding listing could not be loaded.'));
+  }, [searchParams]);
+
   const handleFacilityFilterToggle = (f) => {
     if (selectedFacilities.includes(f)) {
       setSelectedFacilities(selectedFacilities.filter(item => item !== f));
@@ -96,6 +130,11 @@ const Boarding = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!canCreateBoarding) {
+      setError('Only community members can offer boarding facilities.');
+      return;
+    }
 
     if (!title || !description || !price || !location || !distance || !availableDate || !contactMethod) {
       setError('Please fill in all required housing details.');
@@ -137,6 +176,27 @@ const Boarding = () => {
     }
   };
 
+  const confirmDeleteBoarding = async () => {
+    if (!deleteConfirmId) return;
+
+    setError('');
+    setSuccess('');
+    setDeleting(true);
+    try {
+      await api.delete(`/boarding/${deleteConfirmId}`);
+      setSuccess('Lodging details removed successfully.');
+      if (selectedBoarding?.id === deleteConfirmId) {
+        setSelectedBoarding(null);
+      }
+      setDeleteConfirmId(null);
+      fetchBoardings();
+    } catch (err) {
+      setError(err.message || 'Failed to remove lodging details.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
@@ -144,14 +204,19 @@ const Boarding = () => {
         <div>
           <h1 className="text-3xl font-extrabold font-outfit text-white">Boarding Lodging</h1>
           <p className="text-sm text-slate-400 mt-1">Discover verified accommodations, boarding houses, and rooms near the university faculties.</p>
+          {!canCreateBoarding && (
+            <p className="text-xs text-amber-400 mt-2">Students can view and request boarding, but only community members can list new boarding facilities.</p>
+          )}
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-950/20"
-        >
-          <Plus size={18} />
-          <span>List Boarding Space</span>
-        </button>
+        {canCreateBoarding && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-950/20"
+          >
+            <Plus size={18} />
+            <span>Add Boarding Space</span>
+          </button>
+        )}
       </div>
 
       {success && (
@@ -237,13 +302,27 @@ const Boarding = () => {
               {boardings.map(b => (
                 <div 
                   key={b.id}
-                  onClick={() => setSelectedBoarding(b)}
+                  onClick={() => updateSelectedBoardingInUrl(b.id)}
                   className={`bg-slate-900/60 border rounded-3xl p-5 hover:border-slate-700/60 transition group cursor-pointer flex flex-col justify-between space-y-4 ${selectedBoarding?.id === b.id ? 'border-emerald-600 ring-1 ring-emerald-600' : 'border-slate-850'}`}
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-emerald-400">Rs. {parseFloat(b.price).toLocaleString()}/month</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">{b.distance_from_faculty} km from campus</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-500 font-semibold">{b.distance_from_faculty} km from campus</span>
+                        {user && Number(user.id) === Number(b.poster_id) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(b.id);
+                            }}
+                            title="Remove lodging details"
+                            className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/40 transition"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base leading-tight">{b.title}</h3>
@@ -277,7 +356,7 @@ const Boarding = () => {
                   <h2 className="text-lg font-bold font-outfit text-white mt-1 leading-tight">{selectedBoarding.title}</h2>
                 </div>
                 <button 
-                  onClick={() => setSelectedBoarding(null)}
+                  onClick={() => updateSelectedBoardingInUrl(null)}
                   className="text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
                 >
                   <X size={16} />
@@ -317,10 +396,47 @@ const Boarding = () => {
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Contact Information</span>
                 <p className="text-xs text-slate-200 font-semibold flex items-center gap-1.5">
                   <Phone size={14} className="text-emerald-400" />
-                  <span>{selectedBoarding.contact_method}</span>
+                  <span>{selectedBoarding.poster_phone || selectedBoarding.contact_method}</span>
                 </p>
+                {(selectedBoarding.poster_phone || selectedBoarding.contact_method) && (
+                  <div className="flex items-center gap-2 pt-1">
+                    <a
+                      href={`https://wa.me/${toPhoneDigits(selectedBoarding.poster_phone || selectedBoarding.contact_method)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-emerald-950/60 border border-emerald-900/60 text-emerald-400 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                    >
+                      <MessageCircle size={12} />
+                      <span>WhatsApp</span>
+                    </a>
+                    <a
+                      href={`tel:${selectedBoarding.poster_phone || selectedBoarding.contact_method}`}
+                      className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1"
+                    >
+                      <PhoneCall size={12} />
+                      <span>Call</span>
+                    </a>
+                    <a
+                      href={`sms:${selectedBoarding.poster_phone || selectedBoarding.contact_method}`}
+                      className="bg-slate-900 border border-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold"
+                    >
+                      SMS
+                    </a>
+                  </div>
+                )}
                 <span className="text-[9px] text-slate-500 block">Listed by landlord: {selectedBoarding.poster_name}</span>
               </div>
+
+              {/* Only poster can remove lodging details */}
+              {user && Number(user.id) === Number(selectedBoarding.poster_id) && (
+                <button
+                  onClick={() => setDeleteConfirmId(selectedBoarding.id)}
+                  className="w-full bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 text-red-400 hover:text-red-300 py-3 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={16} />
+                  <span>Remove Lodging Details</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="bg-slate-900/30 border border-slate-800/40 border-dashed rounded-3xl p-8 text-center py-24 sticky top-6">
@@ -332,14 +448,23 @@ const Boarding = () => {
       </div>
 
       {/* Create Boarding Listing Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl relative">
+      {showCreateModal && canCreateBoarding && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-start justify-center p-4 md:p-6 z-50 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl relative max-h-[92vh] overflow-y-auto mt-4 md:mt-8">
             <button 
               onClick={() => setShowCreateModal(false)}
               className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
             >
               <X size={16} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition mb-4"
+            >
+              <ChevronLeft size={14} />
+              <span>Back</span>
             </button>
 
             <h3 className="text-xl font-bold font-outfit text-white mb-2">List Boarding Lodging Space</h3>
@@ -467,9 +592,52 @@ const Boarding = () => {
                 disabled={loading}
                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold text-sm transition mt-4 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
               >
-                {loading ? 'Submitting housing...' : 'Post Boarding Listing'}
+                {loading ? 'Submitting housing...' : 'Add'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-6 text-center animate-in fade-in zoom-in duration-200">
+            <button 
+              onClick={() => setDeleteConfirmId(null)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="w-14 h-14 bg-red-950/60 border border-red-800/40 text-red-400 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-950/30">
+              <AlertTriangle size={26} />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-outfit text-white">Remove Lodging Details?</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Are you sure you want to remove this boarding listing? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 bg-slate-950 border border-slate-850 hover:bg-slate-850 text-slate-300 py-3 rounded-xl font-semibold text-xs transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={confirmDeleteBoarding}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-red-950/30 disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                <span>{deleting ? 'Removing...' : 'Yes, Remove'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

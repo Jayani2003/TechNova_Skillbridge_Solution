@@ -196,7 +196,6 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
-  const userType = req.user.user_type;
   const {
     full_name,
     phone,
@@ -204,6 +203,7 @@ exports.updateProfile = async (req, res) => {
     latitude,
     longitude,
     profile_image,
+    user_type,
     // Student fields
     university,
     faculty,
@@ -223,21 +223,65 @@ exports.updateProfile = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    const [existingUsers] = await connection.query('SELECT full_name, phone, user_type, profile_image FROM users WHERE id = ?', [userId]);
+    if (existingUsers.length === 0) {
+      connection.release();
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const currentUserType = user_type || req.user.user_type || existingUsers[0].user_type;
+    const currentProfileImage = profile_image !== undefined ? profile_image : existingUsers[0].profile_image;
+
     // Update users basic details
     await connection.query(
       `UPDATE users 
        SET full_name = ?, phone = ?, location = ?, latitude = ?, longitude = ?, profile_image = ?
        WHERE id = ?`,
-      [full_name, phone, location, latitude || 6.0535, longitude || 80.5332, profile_image || null, userId]
+      [
+        full_name || existingUsers[0].full_name,
+        phone || existingUsers[0].phone || '',
+        location || '',
+        latitude || 6.0535,
+        longitude || 80.5332,
+        currentProfileImage,
+        userId
+      ]
     );
 
-    if (userType === 'STUDENT') {
-      await connection.query(
-        `UPDATE student_profiles 
-         SET university = ?, faculty = ?, academic_year = ?, degree_program = ?, availability = ?, expected_rate = ?, bio = ?
-         WHERE user_id = ?`,
-        [university, faculty, academic_year, degree_program, availability, expected_rate || 0.00, bio || '', userId]
-      );
+    if (currentUserType === 'STUDENT') {
+      const [existingStudent] = await connection.query('SELECT user_id FROM student_profiles WHERE user_id = ?', [userId]);
+      if (existingStudent.length > 0) {
+        await connection.query(
+          `UPDATE student_profiles 
+           SET university = ?, faculty = ?, academic_year = ?, degree_program = ?, availability = ?, expected_rate = ?, bio = ?
+           WHERE user_id = ?`,
+          [
+            university || '',
+            faculty || '',
+            academic_year || '1st Year',
+            degree_program || '',
+            availability || 'Weekends',
+            expected_rate || 0.00,
+            bio || '',
+            userId
+          ]
+        );
+      } else {
+        await connection.query(
+          `INSERT INTO student_profiles (user_id, university, faculty, academic_year, degree_program, availability, expected_rate, bio)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            userId,
+            university || '',
+            faculty || '',
+            academic_year || '1st Year',
+            degree_program || '',
+            availability || 'Weekends',
+            expected_rate || 0.00,
+            bio || ''
+          ]
+        );
+      }
 
       // Handle skills updates (delete existing and insert new ones)
       if (Array.isArray(skills)) {
@@ -249,20 +293,30 @@ exports.updateProfile = async (req, res) => {
         }
       }
     } else {
-      await connection.query(
-        `UPDATE community_profiles 
-         SET occupation = ?, business_name = ?, services = ?, bio = ?
-         WHERE user_id = ?`,
-        [occupation, business_name || '', services || '', bio || '', userId]
-      );
+      const [existingCommunity] = await connection.query('SELECT user_id FROM community_profiles WHERE user_id = ?', [userId]);
+      if (existingCommunity.length > 0) {
+        await connection.query(
+          `UPDATE community_profiles 
+           SET occupation = ?, business_name = ?, services = ?, bio = ?
+           WHERE user_id = ?`,
+          [occupation || '', business_name || '', services || '', bio || '', userId]
+        );
+      } else {
+        await connection.query(
+          `INSERT INTO community_profiles (user_id, occupation, business_name, services, bio)
+           VALUES (?, ?, ?, ?, ?)`,
+          [userId, occupation || '', business_name || '', services || '', bio || '']
+        );
+      }
     }
 
     await connection.commit();
-    const updatedUser = await fetchUserProfile(db, userId, userType);
+    const updatedUser = await fetchUserProfile(db, userId, currentUserType);
     res.json(updatedUser);
   } catch (error) {
     await connection.rollback();
-    res.status(500).json({ message: 'Error updating profile.' });
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: error.message || 'Error updating profile.' });
   } finally {
     connection.release();
   }

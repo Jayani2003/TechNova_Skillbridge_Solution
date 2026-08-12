@@ -50,6 +50,7 @@ const Profile = () => {
   const [services, setServices] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -65,9 +66,9 @@ const Profile = () => {
       setImpactData(impact);
 
       // Load form defaults
-      setFullName(data.full_name);
-      setPhone(data.phone);
-      setLocation(data.location);
+      setFullName(data.full_name || '');
+      setPhone(data.phone || '');
+      setLocation(data.location || '');
       
       if (data.user_type === 'STUDENT') {
         setUniversity(data.university || '');
@@ -75,7 +76,7 @@ const Profile = () => {
         setAcademicYear(data.academic_year || '1st Year');
         setDegreeProgram(data.degree_program || '');
         setAvailability(data.availability || '');
-        setExpectedRate(data.expected_rate || '');
+        setExpectedRate(data.expected_rate !== undefined && data.expected_rate !== null ? data.expected_rate : '');
         setBio(data.bio || '');
         setSkillsStr(data.skills ? data.skills.join(', ') : '');
       } else {
@@ -102,29 +103,54 @@ const Profile = () => {
     setError('');
     setSuccess('');
 
+    if (!fullName || !fullName.trim()) {
+      setError('Full Name is required.');
+      return;
+    }
+
+    const targetUserType = profileData?.user_type || user?.user_type;
+    const isStudentUser = targetUserType === 'STUDENT';
     const skillsArr = skillsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
 
     const payload = {
-      full_name: fullName,
-      phone,
-      location,
-      ...(user.user_type === 'STUDENT'
-        ? { university, faculty, academic_year: academicYear, degree_program: degreeProgram, availability, expected_rate: parseFloat(expectedRate || 0), bio, skills: skillsArr }
-        : { occupation, business_name: businessName, services, bio }
+      full_name: fullName.trim(),
+      phone: phone.trim(),
+      location: location.trim(),
+      user_type: targetUserType,
+      ...(isStudentUser
+        ? { 
+            university: university.trim(), 
+            faculty: faculty.trim(), 
+            academic_year: academicYear, 
+            degree_program: degreeProgram.trim(), 
+            availability: availability.trim(), 
+            expected_rate: parseFloat(expectedRate || 0), 
+            bio: bio.trim(), 
+            skills: skillsArr 
+          }
+        : { 
+            occupation: occupation.trim(), 
+            business_name: businessName.trim(), 
+            services: services.trim(), 
+            bio: bio.trim() 
+          }
       )
     };
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await api.put('/auth/profile', payload);
       setSuccess('Profile updated successfully!');
       setIsEditing(false);
-      await refreshUser();
+      if (refreshUser) {
+        await refreshUser();
+      }
       loadProfile();
     } catch (err) {
+      console.error('Failed to update profile:', err);
       setError(err.message || 'Error updating profile.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -163,8 +189,13 @@ const Profile = () => {
           </div>
 
           <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="bg-slate-950 hover:bg-slate-800 border border-slate-850 text-slate-300 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+            type="button"
+            onClick={() => {
+              setError('');
+              setSuccess('');
+              setIsEditing(!isEditing);
+            }}
+            className="bg-slate-950 hover:bg-slate-800 border border-slate-850 text-slate-300 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer z-10"
           >
             {isEditing ? (
               <>
@@ -201,7 +232,7 @@ const Profile = () => {
             /* ========================================================
                EDIT FORM VIEW
                ======================================================== */
-            <form onSubmit={handleUpdateProfile} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+            <form noValidate onSubmit={handleUpdateProfile} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
               <h3 className="text-sm font-bold font-outfit text-slate-350 border-b border-slate-850 pb-2 flex items-center gap-1.5">
                 <Edit3 size={16} />
                 <span>Update Profile Details</span>
@@ -376,11 +407,17 @@ const Profile = () => {
 
               <button 
                 type="submit" 
-                disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1 shadow-lg shadow-emerald-950/20"
+                disabled={submitting}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/20 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
-                <Check size={16} />
-                <span>Save Changes</span>
+                {submitting ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <Check size={16} />
+                    <span>Save Changes</span>
+                  </>
+                )}
               </button>
             </form>
           ) : (
