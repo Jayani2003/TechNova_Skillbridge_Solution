@@ -234,11 +234,13 @@ exports.applyToGig = async (req, res) => {
       return res.status(400).json({ message: 'You have already applied for this gig.' });
     }
 
-    await connection.query(
+    const [appResult] = await connection.query(
       `INSERT INTO applications (gig_id, applicant_id, cover_message, proposed_price, estimated_duration, status)
        VALUES (?, ?, ?, ?, ?, 'PENDING')`,
       [gigId, applicantId, cover_message, proposed_price, estimated_duration]
     );
+
+    const newApplicationId = appResult.insertId;
 
     // Update gig status to 'APPLIED' if it was 'OPEN' (so we know someone applied)
     // Actually let's keep it 'OPEN' so others can apply, but let's change status if needed.
@@ -247,10 +249,11 @@ exports.applyToGig = async (req, res) => {
     await connection.query("UPDATE gigs SET status = 'APPLIED' WHERE id = ? AND status = 'OPEN'", [gigId]);
 
     // Notify gig poster
+    const notificationContent = `Someone has applied for your gig "${gig.title}". Review their application details.|||GIG_APP_DATA:${JSON.stringify({cover_message, proposed_price, estimated_duration})}`;
     await connection.query(
-      `INSERT INTO notifications (user_id, title, content)
-       VALUES (?, 'New Job Application Received', ?)`,
-      [gig.poster_id, `Someone has applied for your gig "${gig.title}". Review their application details.`]
+      `INSERT INTO notifications (user_id, sender_id, title, content, related_id, related_type)
+       VALUES (?, ?, 'New Job Application Received', ?, ?, 'APPLICATION')`,
+      [gig.poster_id, applicantId, notificationContent, newApplicationId]
     );
 
     await connection.commit();

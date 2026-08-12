@@ -10,10 +10,13 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  MessageSquare
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -64,14 +67,33 @@ const Notifications = () => {
         accept
       });
       
-      setSuccess(accept ? 'Offer accepted! Job started.' : 'Offer declined.');
+      setSuccess('Response submitted successfully.');
       
       // Mark notification as read
       await api.put(`/notifications/${notifId}/read`);
       
       fetchNotifications();
     } catch (err) {
-      setError(err.message || 'Error processing response.');
+      setError(err.response?.data?.message || err.message || 'Error submitting response.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRespondApplication = async (notifId, applicationId, accept) => {
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    try {
+      await api.put(`/applications/${applicationId}`, { status: accept ? 'ACCEPTED' : 'REJECTED' });
+      // Mark notification as read
+      await api.put(`/notifications/${notifId}/read`);
+      setSuccess(`Application ${accept ? 'accepted' : 'rejected'} successfully.`);
+      fetchNotifications();
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Error responding to application.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,6 +148,19 @@ const Notifications = () => {
               }
             }
 
+            const isApp = notif.related_type === 'APPLICATION';
+            let appData = null;
+            let displayContent = notif.content;
+            if (isApp && notif.content.includes('|||GIG_APP_DATA:')) {
+              const parts = notif.content.split('|||GIG_APP_DATA:');
+              displayContent = parts[0];
+              try {
+                appData = JSON.parse(parts[1]);
+              } catch (e) {
+                console.error('Error parsing app details:', e);
+              }
+            }
+
             return (
               <div 
                 key={notif.id}
@@ -142,8 +177,59 @@ const Notifications = () => {
                     <h3 className="font-bold text-slate-200 text-sm leading-snug">{notif.title}</h3>
                   </div>
 
-                  {!isOffer ? (
-                    <p className="text-xs text-slate-400 leading-relaxed pl-4">{notif.content}</p>
+                  {!isOffer && notif.related_type !== 'APPLICATION' ? (
+                    <p className="text-xs text-slate-400 leading-relaxed pl-4">{displayContent}</p>
+                  ) : notif.related_type === 'APPLICATION' ? (
+                    <div className="bg-slate-950 border border-slate-850/60 p-4 rounded-2xl space-y-4 mt-2 max-w-xl pl-4">
+                      <p className="text-xs text-slate-400 leading-relaxed">{displayContent}</p>
+                      
+                      {appData && (
+                        <div className="space-y-3 mt-4 border-t border-slate-800/60 pt-4">
+                          <div>
+                            <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block">COVER MESSAGE</span>
+                            <p className="text-xs text-slate-300 mt-1 italic">"{appData.cover_message}"</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-slate-900 border border-slate-850 p-2.5 rounded-xl text-center">
+                              <span className="text-[9px] text-slate-500 font-bold block uppercase">Proposed Budget</span>
+                              <span className="text-xs font-bold text-emerald-400">Rs. {parseFloat(appData.proposed_price).toLocaleString()}</span>
+                            </div>
+                            <div className="bg-slate-900 border border-slate-850 p-2.5 rounded-xl text-center">
+                              <span className="text-[9px] text-slate-500 font-bold block uppercase">Est. Duration</span>
+                              <span className="text-xs font-bold text-slate-200">{appData.estimated_duration}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {!notif.is_read && (
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={() => handleRespondApplication(notif.id, notif.related_id, true)}
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1"
+                          >
+                            <CheckCircle size={14} />
+                            <span>Accept</span>
+                          </button>
+                          <button
+                            onClick={() => handleRespondApplication(notif.id, notif.related_id, false)}
+                            className="flex-1 bg-slate-900 hover:bg-red-950/20 text-slate-400 hover:text-red-400 border border-slate-850 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1"
+                          >
+                            <XCircle size={14} />
+                            <span>Reject</span>
+                          </button>
+                          {notif.sender_id && (
+                            <button
+                              onClick={() => navigate(`/messages?user=${notif.sender_id}`)}
+                              className="flex-1 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1"
+                            >
+                              <MessageSquare size={14} />
+                              <span>Message</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     proposal && (
                       <div className="bg-slate-950 border border-slate-850/60 p-4 rounded-2xl space-y-4 mt-2 max-w-xl pl-4">
