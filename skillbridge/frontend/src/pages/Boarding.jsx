@@ -11,7 +11,9 @@ import {
   Tag,
   CheckSquare,
   Home as HomeIcon,
-  Maximize2
+  Maximize2,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 const Boarding = () => {
@@ -23,6 +25,8 @@ const Boarding = () => {
   
   // Form modal
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Filters
   const [maxPrice, setMaxPrice] = useState('');
@@ -137,6 +141,27 @@ const Boarding = () => {
     }
   };
 
+  const confirmDeleteBoarding = async () => {
+    if (!deleteConfirmId) return;
+
+    setError('');
+    setSuccess('');
+    setDeleting(true);
+    try {
+      await api.delete(`/boarding/${deleteConfirmId}`);
+      setSuccess('Lodging details removed successfully.');
+      if (selectedBoarding?.id === deleteConfirmId) {
+        setSelectedBoarding(null);
+      }
+      setDeleteConfirmId(null);
+      fetchBoardings();
+    } catch (err) {
+      setError(err.message || 'Failed to remove lodging details.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
@@ -243,7 +268,21 @@ const Boarding = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-emerald-400">Rs. {parseFloat(b.price).toLocaleString()}/month</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">{b.distance_from_faculty} km from campus</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-500 font-semibold">{b.distance_from_faculty} km from campus</span>
+                        {user && Number(user.id) === Number(b.poster_id) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(b.id);
+                            }}
+                            title="Remove lodging details"
+                            className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/40 transition"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base leading-tight">{b.title}</h3>
@@ -321,6 +360,17 @@ const Boarding = () => {
                 </p>
                 <span className="text-[9px] text-slate-500 block">Listed by landlord: {selectedBoarding.poster_name}</span>
               </div>
+
+              {/* Only poster can remove lodging details */}
+              {user && Number(user.id) === Number(selectedBoarding.poster_id) && (
+                <button
+                  onClick={() => setDeleteConfirmId(selectedBoarding.id)}
+                  className="w-full bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 text-red-400 hover:text-red-300 py-3 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={16} />
+                  <span>Remove Lodging Details</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="bg-slate-900/30 border border-slate-800/40 border-dashed rounded-3xl p-8 text-center py-24 sticky top-6">
@@ -470,6 +520,49 @@ const Boarding = () => {
                 {loading ? 'Submitting housing...' : 'Post Boarding Listing'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-6 text-center animate-in fade-in zoom-in duration-200">
+            <button 
+              onClick={() => setDeleteConfirmId(null)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="w-14 h-14 bg-red-950/60 border border-red-800/40 text-red-400 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-950/30">
+              <AlertTriangle size={26} />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-outfit text-white">Remove Lodging Details?</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Are you sure you want to remove this boarding listing? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 bg-slate-950 border border-slate-850 hover:bg-slate-850 text-slate-300 py-3 rounded-xl font-semibold text-xs transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={confirmDeleteBoarding}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-red-950/30 disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                <span>{deleting ? 'Removing...' : 'Yes, Remove'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
