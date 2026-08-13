@@ -72,6 +72,8 @@ app.post('/api/hire/respond', authMiddleware, jobController.acceptDirectHire);
 app.get('/api/boarding', boardingController.getAllBoardings);
 app.post('/api/boarding', authMiddleware, boardingController.createBoarding);
 app.get('/api/boarding/:id', boardingController.getBoardingById);
+app.put('/api/boarding/:id', authMiddleware, boardingController.updateBoarding);
+app.patch('/api/boarding/:id/status', authMiddleware, boardingController.toggleBoardingStatus);
 app.delete('/api/boarding/:id', authMiddleware, boardingController.deleteBoarding);
 
 // 6. Resources & Donations

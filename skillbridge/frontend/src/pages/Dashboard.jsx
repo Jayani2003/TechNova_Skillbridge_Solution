@@ -158,15 +158,17 @@ const Dashboard = () => {
           {isStudent ? (
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-extrabold font-outfit text-white">{user.opportunity_score || 85}</span>
+                <span className="text-4xl font-extrabold font-outfit text-white">
+                  {user.opportunity_score !== undefined ? user.opportunity_score : Math.min(100, 50 + (user.completed_jobs || 0) * 10)}
+                </span>
                 <span className="text-xs font-semibold text-emerald-400">/ 100</span>
               </div>
               <span className="text-xs text-slate-500 mt-2 block font-medium">Opportunity Score</span>
             </div>
           ) : (
             <div>
-              <span className="text-4xl font-extrabold font-outfit text-white">{user.completed_jobs + 2}</span>
-              <span className="text-xs text-slate-500 mt-2 block font-medium">Active Gigs & Lodging</span>
+              <span className="text-4xl font-extrabold font-outfit text-white">{user.completed_jobs || 0}</span>
+              <span className="text-xs text-slate-500 mt-2 block font-medium">Jobs & Contracts</span>
             </div>
           )}
         </div>
@@ -180,7 +182,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div>
-            <span className="text-4xl font-extrabold font-outfit text-white">{user.completed_jobs}</span>
+            <span className="text-4xl font-extrabold font-outfit text-white">{user.completed_jobs || 0}</span>
             <span className="text-xs text-slate-500 mt-2 block font-medium">Contracts Executed</span>
           </div>
         </div>
@@ -197,7 +199,7 @@ const Dashboard = () => {
           </div>
           <div>
             <span className="text-2xl md:text-3xl font-extrabold font-outfit text-white">
-              Rs. {user.total_earnings?.toLocaleString()}
+              Rs. {(user.total_earnings || 0).toLocaleString()}
             </span>
             <span className="text-xs text-slate-500 mt-2 block font-medium">
               {isStudent ? 'Transferred Income' : 'Student Payments'}
@@ -216,14 +218,14 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-4xl font-extrabold font-outfit text-white">
-                {parseFloat(user.avg_rating || 0) > 0 ? user.avg_rating : '5.0'}
+                {parseFloat(user.avg_rating || 0) > 0 ? user.avg_rating : '0.0'}
               </span>
               <div className="flex text-amber-400">
                 <Star size={16} className="fill-amber-400" />
               </div>
             </div>
             <span className="text-xs text-slate-500 mt-2 block font-medium">
-              Based on {user.ratings_count || 1} review(s)
+              Based on {user.ratings_count || 0} review(s)
             </span>
           </div>
         </div>

@@ -109,8 +109,8 @@ const MainLayout = ({ children }) => {
     <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row">
       {/* Mobile Top Bar */}
       <header className="md:hidden bg-slate-900 border-b border-slate-800 h-16 flex items-center justify-between px-4 z-40">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="bg-emerald-600 p-2 rounded-lg text-white font-bold flex items-center justify-center">SB</div>
+        <Link to="/dashboard" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="SkillBridge Logo" className="h-9 w-9 object-contain bg-white rounded-xl p-0.5" />
           <span className="font-semibold text-lg font-outfit tracking-wide text-white">SkillBridge</span>
         </Link>
         <button 
@@ -130,9 +130,7 @@ const MainLayout = ({ children }) => {
       `}>
         {/* Sidebar Header */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-slate-800">
-          <div className="bg-emerald-600 w-10 h-10 rounded-xl text-white font-bold font-outfit text-xl flex items-center justify-center shadow-lg shadow-emerald-900/30">
-            S
-          </div>
+          <img src="/logo.png" alt="SkillBridge Logo" className="h-10 w-10 object-contain bg-white rounded-xl p-0.5 shadow-lg shadow-emerald-950/40" />
           <div>
             <span className="font-bold text-xl font-outfit tracking-wide text-white block">SkillBridge</span>
             <span className="text-[10px] text-emerald-400 font-semibold tracking-widest uppercase">Local Economy</span>
