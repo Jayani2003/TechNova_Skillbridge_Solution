@@ -13,11 +13,15 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [whatsappNo, setWhatsappNo] = useState('');
   const [location, setLocation] = useState('');
 
   // Student specific
   const [university, setUniversity] = useState('University of Ruhuna');
   const [faculty, setFaculty] = useState('');
+  const [department, setDepartment] = useState('');
+  const [studentRegistrationNo, setStudentRegistrationNo] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
   const [academicYear, setAcademicYear] = useState('1st Year');
   const [degreeProgram, setDegreeProgram] = useState('');
 
@@ -33,22 +37,25 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    if (!fullName || !email || !password || !phone || !location) {
+    const finalEmail = userType === 'STUDENT' ? studentEmail : email;
+
+    if (!fullName || !finalEmail || !password || !phone || !location) {
       setError('Please fill in all common required fields.');
       return;
     }
 
     const payload = {
       full_name: fullName,
-      email,
+      email: finalEmail,
       password,
       phone,
       user_type: userType,
       location,
       latitude: 6.0535 + (Math.random() - 0.5) * 0.02, // Simulate coordinates around Matara
       longitude: 80.5332 + (Math.random() - 0.5) * 0.02,
+      whatsapp_no: whatsappNo,
       ...(userType === 'STUDENT' 
-        ? { university, faculty, academic_year: academicYear, degree_program: degreeProgram } 
+        ? { university, faculty, department, student_registration_no: studentRegistrationNo, student_email: studentEmail, academic_year: academicYear, degree_program: degreeProgram } 
         : { occupation, business_name: businessName, services }
       )
     };
@@ -138,17 +145,19 @@ const Register = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
-                  placeholder="name@domain.com"
-                  required
-                />
-              </div>
+              {userType !== 'STUDENT' && (
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
+                    placeholder="name@domain.com"
+                    required
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Password</label>
@@ -173,10 +182,20 @@ const Register = () => {
                   required
                 />
               </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">WhatsApp Number <span className="text-slate-500 font-normal lowercase">(optional)</span></label>
+                <input
+                  type="text"
+                  value={whatsappNo}
+                  onChange={(e) => setWhatsappNo(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
+                  placeholder="e.g. 0771234567"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Approximate Location</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Approximate Location *</label>
               <input
                 type="text"
                 value={location}
@@ -214,6 +233,42 @@ const Register = () => {
                     onChange={(e) => setFaculty(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                     placeholder="e.g. Faculty of Technology"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Department</label>
+                  <input
+                    type="text"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
+                    placeholder="e.g. Information & Communication Technology"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Student Registration No</label>
+                  <input
+                    type="text"
+                    value={studentRegistrationNo}
+                    onChange={(e) => setStudentRegistrationNo(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
+                    placeholder="e.g. TG/2021/1000"
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">University / Student Email</label>
+                  <input
+                    type="email"
+                    value={studentEmail}
+                    onChange={(e) => setStudentEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
+                    placeholder="student123@fot.ruh.ac.lk"
                     required
                   />
                 </div>
