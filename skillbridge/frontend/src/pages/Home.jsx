@@ -11,7 +11,9 @@ import {
   Users, 
   HeartHandshake,
   ShieldCheck,
-  Zap
+  Zap,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const Home = () => {
@@ -20,6 +22,20 @@ const Home = () => {
   const [impact, setImpact] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -65,6 +81,13 @@ const Home = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleTheme}
+            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-900 transition flex items-center justify-center cursor-pointer"
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-indigo-400" />}
+          </button>
           <Link to="/login" className="text-slate-400 hover:text-white text-sm font-medium transition">
             Sign In
           </Link>

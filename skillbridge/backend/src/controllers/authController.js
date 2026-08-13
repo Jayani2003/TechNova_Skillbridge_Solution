@@ -62,6 +62,7 @@ exports.register = async (req, res) => {
     email,
     password,
     phone,
+    whatsapp_no,
     user_type,
     location,
     latitude,
@@ -69,6 +70,9 @@ exports.register = async (req, res) => {
     // Student fields
     university,
     faculty,
+    department,
+    student_registration_no,
+    student_email,
     academic_year,
     degree_program,
     // Community fields
@@ -102,21 +106,21 @@ exports.register = async (req, res) => {
 
     // Insert user
     const [userRes] = await connection.query(
-      `INSERT INTO users (full_name, email, password_hash, phone, user_type, location, latitude, longitude)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [full_name, email, passwordHash, phone, user_type, location, lat, lng]
+      `INSERT INTO users (full_name, email, password_hash, phone, whatsapp_no, user_type, location, latitude, longitude)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [full_name, email, passwordHash, phone, whatsapp_no || null, user_type, location, lat, lng]
     );
     const userId = userRes.insertId;
 
     // Insert type-specific profile
     if (user_type === 'STUDENT') {
-      if (!university || !faculty || !academic_year || !degree_program) {
+      if (!university || !faculty || !department || !student_registration_no || !student_email || !academic_year || !degree_program) {
         throw new Error('Please fill in all student profile details.');
       }
       await connection.query(
-        `INSERT INTO student_profiles (user_id, university, faculty, academic_year, degree_program)
-         VALUES (?, ?, ?, ?, ?)`,
-        [userId, university, faculty, academic_year, degree_program]
+        `INSERT INTO student_profiles (user_id, university, faculty, department, student_registration_no, student_email, academic_year, degree_program)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, university, faculty, department, student_registration_no, student_email, academic_year, degree_program]
       );
     } else {
       if (!occupation) {

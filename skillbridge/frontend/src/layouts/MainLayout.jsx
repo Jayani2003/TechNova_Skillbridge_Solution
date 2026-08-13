@@ -16,7 +16,9 @@ import {
   LogOut, 
   Menu, 
   X,
-  Sparkles
+  Sparkles,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const MainLayout = ({ children }) => {
@@ -27,6 +29,21 @@ const MainLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     const fetchBadges = async () => {
@@ -60,9 +77,17 @@ const MainLayout = ({ children }) => {
   };
 
   const handleBackToHome = () => {
-    alert("You are logging out. Returning to home page.");
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmBackToHome = () => {
     logout();
     navigate('/');
+    setShowLogoutConfirm(false);
+  };
+
+  const cancelBackToHome = () => {
+    setShowLogoutConfirm(false);
   };
 
   const navItems = [
@@ -181,8 +206,25 @@ const MainLayout = ({ children }) => {
           })}
         </nav>
 
-        {/* Sidebar Footer / Logout */}
-        <div className="p-4 border-t border-slate-800">
+        {/* Sidebar Footer / Theme Switcher & Logout */}
+        <div className="p-4 border-t border-slate-800 space-y-2">
+          <button 
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-slate-200 transition text-sm font-bold cursor-pointer"
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun size={20} className="text-amber-500 fill-amber-500/20" />
+                <span>Light Mode</span>
+              </>
+            ) : (
+              <>
+                <Moon size={20} className="text-indigo-400 fill-indigo-400/20" />
+                <span>Dark Mode</span>
+              </>
+            )}
+          </button>
+
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-red-950/20 hover:text-red-400 transition text-sm font-medium"
@@ -199,6 +241,37 @@ const MainLayout = ({ children }) => {
           {children}
         </main>
       </div>
+      {/* Custom Logout Confirmation Dialog Box */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all duration-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative text-center">
+            {/* Warning Icon with glow */}
+            <div className="mx-auto w-14 h-14 bg-emerald-950/30 text-emerald-450 rounded-full border border-emerald-500/30 flex items-center justify-center mb-4 shadow-lg shadow-emerald-950/20">
+              <LogOut size={28} />
+            </div>
+
+            <h3 className="text-xl font-bold font-outfit text-white mb-2">Back to Home</h3>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Are you sure you want to log out of your current session and return to the Home page?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={cancelBackToHome}
+                className="flex-1 bg-slate-850 hover:bg-slate-800 text-slate-205 py-3 rounded-xl font-semibold text-xs transition border border-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBackToHome}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-semibold text-xs transition shadow-lg shadow-emerald-950/20 cursor-pointer"
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
