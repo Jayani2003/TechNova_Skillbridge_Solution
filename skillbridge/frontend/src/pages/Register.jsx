@@ -248,7 +248,6 @@ const Register = () => {
                     />
                   </div>
                 </div>
->>>>>>> jayaninew
               </div>
             </div>
 
