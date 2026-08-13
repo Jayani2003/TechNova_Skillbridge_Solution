@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { 
-  TrendingUp, 
-  Briefcase, 
-  MapPin, 
-  ArrowRight, 
-  Star, 
-  Zap, 
+import {
+  TrendingUp,
+  Briefcase,
+  MapPin,
+  ArrowRight,
+  Star,
+  Zap,
   Award,
   Sparkles,
   ShieldAlert,
@@ -84,8 +84,8 @@ const Dashboard = () => {
     <div className="space-y-6 pb-12">
       {/* Back to Home Button */}
       <div className="flex items-center">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 px-4 py-2.5 rounded-2xl shadow-md"
         >
           <ChevronLeft size={14} />
@@ -111,7 +111,7 @@ const Dashboard = () => {
               Welcome back, {user.full_name}!
             </h1>
             <p className="text-sm text-slate-400 mt-2 max-w-xl">
-              {isStudent 
+              {isStudent
                 ? 'Your skills are valued! Check open gigs below, coordinate with community business owners, or trade academic items.'
                 : 'Connect with Ruhuna student talent, browse active service providers, rent out boarding spaces, or donate unused items.'}
             </p>
@@ -257,13 +257,13 @@ const Dashboard = () => {
                       </span>
                       <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base">{gig.title}</h3>
                       <p className="text-xs text-slate-400 line-clamp-2 max-w-xl">{gig.description}</p>
-                      
+
                       <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
                         <span className="flex items-center gap-1"><MapPin size={12} /> {gig.location}</span>
                         <span className="font-medium text-emerald-400">Rs. {parseFloat(gig.budget).toLocaleString()}</span>
                       </div>
                     </div>
-                    
+
                     <Link to={`/gigs?selected=${gig.id}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
                       <span>Apply Now</span>
                       <ArrowRight size={12} />
@@ -280,15 +280,15 @@ const Dashboard = () => {
                 talents.map(talent => (
                   <div key={talent.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700/60 transition group flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
-                      <img 
-                        src={talent.profile_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.full_name}`} 
-                        alt={talent.full_name} 
+                      <img
+                        src={talent.profile_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.full_name}`}
+                        alt={talent.full_name}
                         className="w-12 h-12 rounded-full border border-slate-800 bg-slate-950"
                       />
                       <div>
                         <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base">{talent.full_name}</h3>
                         <p className="text-xs text-slate-400 font-medium">{talent.faculty} • {talent.degree_program}</p>
-                        
+
                         <div className="flex items-center gap-3 mt-1.5">
                           <span className="bg-slate-950 text-slate-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-850">
                             Reputation: {talent.opportunity_score}/100
@@ -305,7 +305,7 @@ const Dashboard = () => {
                         <span key={skill} className="bg-slate-950 text-slate-400 px-2 py-0.5 rounded border border-slate-850">{skill}</span>
                       ))}
                     </div>
-                    
+
                     <Link to={`/talent?selected=${talent.id}&userType=${talent.user_type}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
                       <span>View Profile</span>
                       <ArrowRight size={12} />
@@ -327,7 +327,7 @@ const Dashboard = () => {
                 <Globe className="text-emerald-500" size={16} />
                 <span>Local Platform Impact metrics</span>
               </h3>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850">
                   <span className="text-lg font-bold text-white block">{stats.studentsConnected + stats.communityConnected}</span>

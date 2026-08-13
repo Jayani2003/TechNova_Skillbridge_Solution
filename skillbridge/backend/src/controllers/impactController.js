@@ -34,7 +34,7 @@ exports.getGlobalImpact = async (req, res) => {
     const opportunitiesCount = gigs[0].count;
     const jobsCompletedCount = completedJobs[0].count;
     const incomeGenerated = parseFloat(completedJobs[0].total_income);
-    
+
     // People helped count
     const [helpedStats] = await db.query(`
       SELECT COUNT(DISTINCT user_id) as count FROM (

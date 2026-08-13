@@ -6,7 +6,7 @@ import { Shield, Key, Mail, ArrowRight, ChevronLeft } from 'lucide-react';
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -54,7 +54,7 @@ const Login = () => {
 
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl shadow-slate-950 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl"></div>
-        
+
         <h2 className="text-2xl font-bold font-outfit text-white text-center mb-1">Welcome Back</h2>
         <p className="text-xs text-slate-400 text-center mb-6">Sign in to access your local opportunities dashboard.</p>
 
@@ -72,8 +72,8 @@ const Login = () => {
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                 <Mail size={16} />
               </div>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 text-sm placeholder-slate-600 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition"
@@ -91,8 +91,8 @@ const Login = () => {
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                 <Key size={16} />
               </div>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 text-sm placeholder-slate-600 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition"
@@ -102,7 +102,7 @@ const Login = () => {
             </div>
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={loading}
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold transition text-sm flex items-center justify-center gap-2 mt-6 shadow-lg shadow-emerald-900/20 cursor-pointer"

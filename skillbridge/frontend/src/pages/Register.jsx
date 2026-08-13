@@ -67,8 +67,8 @@ const Register = () => {
       latitude: 6.0535 + (Math.random() - 0.5) * 0.02, // Simulate coordinates around Matara
       longitude: 80.5332 + (Math.random() - 0.5) * 0.02,
       whatsapp_no: whatsappNo,
-      ...(userType === 'STUDENT' 
-        ? { university, faculty, department, student_registration_no: studentRegistrationNo, student_email: studentEmail, academic_year: academicYear, degree_program: degreeProgram } 
+      ...(userType === 'STUDENT'
+        ? { university, faculty, department, student_registration_no: studentRegistrationNo, student_email: studentEmail, academic_year: academicYear, degree_program: degreeProgram }
         : { occupation, business_name: businessName, services }
       )
     };
@@ -142,7 +142,7 @@ const Register = () => {
           {/* Section: Common Information */}
           <div className="bg-slate-950/50 border border-slate-800/60 rounded-2xl p-5 space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2 mb-2">Common Credentials</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
@@ -202,22 +202,22 @@ const Register = () => {
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                   placeholder="e.g. 0771234567"
                 />
-                <div/>
+              </div>
 
               <div className="md:col-span-2 space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-850">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profile Picture (Upload Image or Paste URL)</label>
-                
+
                 {profileImage && (
                   <div className="flex items-center gap-3 pb-2 border-b border-slate-800">
-                    <img 
-                      src={profileImage} 
-                      alt="Profile preview" 
-                      className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500 bg-slate-950" 
+                    <img
+                      src={profileImage}
+                      alt="Profile preview"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500 bg-slate-950"
                     />
                     <div className="text-xs">
                       <span className="font-semibold text-emerald-400 block">Image Loaded</span>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setProfileImage('')}
                         className="text-[10px] text-red-400 hover:underline"
                       >
@@ -230,8 +230,8 @@ const Register = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Option A: Choose Image File</span>
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       accept="image/*"
                       onChange={handleImageFileChange}
                       className="text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-950 file:text-emerald-400 hover:file:bg-emerald-900 cursor-pointer w-full"
@@ -269,7 +269,7 @@ const Register = () => {
           {userType === 'STUDENT' ? (
             <div className="bg-slate-950/50 border border-slate-800/60 rounded-2xl p-5 space-y-4">
               <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-widest border-b border-slate-800 pb-2 mb-2">🎓 Academic Profile Details</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">University</label>
@@ -362,7 +362,7 @@ const Register = () => {
           ) : (
             <div className="bg-slate-950/50 border border-slate-800/60 rounded-2xl p-5 space-y-4">
               <h3 className="text-xs font-bold text-orange-400 uppercase tracking-widest border-b border-slate-800 pb-2 mb-2">👤 Community Profile Details</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Occupation / Profession</label>

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { 
-  ArrowRight, 
-  Sparkles, 
-  TrendingUp, 
-  PiggyBank, 
-  GraduationCap, 
-  Users, 
+import {
+  ArrowRight,
+  Sparkles,
+  TrendingUp,
+  PiggyBank,
+  GraduationCap,
+  Users,
   HeartHandshake,
   ShieldCheck,
   Zap,
@@ -45,7 +45,7 @@ const Home = () => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
-    
+
     // Fetch real global impact stats and live active listings
     const loadHomeData = async () => {
       try {
@@ -77,7 +77,7 @@ const Home = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={toggleTheme}
             className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-900 transition flex items-center justify-center cursor-pointer"
             title="Toggle theme"
@@ -101,11 +101,11 @@ const Home = () => {
             <Sparkles size={14} />
             <span>Hyperlocal Economy Platform for Students & Surroundings</span>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-extrabold font-outfit leading-tight tracking-tight text-white">
             Turn Skills Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300">Opportunities.</span>
           </h1>
-          
+
           <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
             SkillBridge connects university students with local residents and small businesses. Find flexible micro-jobs, rent affordable student housing, trade academic resources, and build your professional reputation.
           </p>
@@ -147,7 +147,7 @@ const Home = () => {
         <div className="lg:col-span-5">
           <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-950 relative overflow-hidden space-y-6">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl"></div>
-            
+
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white font-outfit flex items-center gap-2">
                 <Zap className="text-emerald-500 fill-emerald-500" size={18} />
@@ -231,14 +231,14 @@ const Home = () => {
             <h2 className="text-2xl md:text-3xl font-bold font-outfit text-white">Five Core Impact Outcomes</h2>
             <p className="text-xs text-slate-500 mt-2">How SkillBridge empowers the local student-community ecosystem.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="bg-slate-900/60 border border-slate-800/40 p-6 rounded-2xl text-center space-y-4">
               <div className="bg-emerald-500/10 text-emerald-400 w-12 h-12 rounded-xl flex items-center justify-center mx-auto"><TrendingUp size={22} /></div>
               <h3 className="font-bold text-sm text-white">Earn More</h3>
               <p className="text-xs text-slate-400 leading-relaxed">Students pick up flexible micro-jobs matching their schedule and rate specs.</p>
             </div>
-            
+
             <div className="bg-slate-900/60 border border-slate-800/40 p-6 rounded-2xl text-center space-y-4">
               <div className="bg-blue-500/10 text-blue-400 w-12 h-12 rounded-xl flex items-center justify-center mx-auto"><PiggyBank size={22} /></div>
               <h3 className="font-bold text-sm text-white">Spend Less</h3>
