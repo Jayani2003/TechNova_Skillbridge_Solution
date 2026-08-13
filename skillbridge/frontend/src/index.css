@@ -1,26 +1,180 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary-50: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-600: #16a34a;
-  --color-primary-700: #15803d;
-  --color-primary-800: #166534;
+:root {
+  /* Dark Mode Default values (Palette-based) */
+  --bg-base: #140c1d;              /* Very dark purple base (#321E48 base-tint) */
+  --bg-surface: #1e112d;           /* Slightly lighter dark purple for cards/sidebars */
+  --bg-surface-elevated: #28173c;  /* Elevated elements, inputs, hover states */
+  
+  --border-color: rgba(67, 99, 126, 0.4);       /* Muted steel blue (#43637E) */
+  --border-color-hover: rgba(101, 220, 213, 0.5); /* Glowing teal (#65DCD5) */
+  
+  --text-base: #b0ebd9;            /* Readable light mint/teal body text */
+  --text-muted: #829cb2;           /* Muted steel blue text */
+  --text-bright: #ffffff;          /* White highlight headings */
+  
+  --color-primary: #65DCD5;        /* Bright Teal (#65DCD5) */
+  --color-primary-hover: #4bc7bf;
+  --color-primary-bg-light: rgba(101, 220, 213, 0.1);
+  --color-primary-button-text: #140c1d; /* Dark text on bright teal button */
+  
+  --color-secondary: #43637E;      /* Steel Blue */
+  --color-secondary-hover: #375269;
+}
 
-  --color-secondary-50: #f8fafc;
-  --color-secondary-100: #f1f5f9;
-  --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-800: #1e293b;
+html.light {
+  /* Light Mode values (Palette-based) */
+  --bg-base: #f0fbf8;              /* Soft mint background (#D9FFF4 base-tint) */
+  --bg-surface: #ffffff;           /* Clean white card backgrounds */
+  --bg-surface-elevated: #e3f6f1;  /* Soft mint for inputs and hover states */
+  
+  --border-color: rgba(67, 99, 126, 0.2);       /* Soft steel blue border */
+  --border-color-hover: rgba(101, 220, 213, 0.8); /* Teal hover border */
+  
+  --text-base: #321E48;            /* Dark purple body text (high contrast) */
+  --text-muted: #43637E;           /* Muted steel blue text */
+  --text-bright: #1c0f2b;          /* Extra dark purple for titles and headings */
+  
+  --color-primary: #14b8a6;        /* Teal as primary color for high contrast */
+  --color-primary-hover: #0d9488;  /* Steel blue hover */
+  --color-primary-bg-light: #D9FFF4; /* Light Mint Green bg */
+  --color-primary-button-text: #ffffff; /* White text on teal button */
+  
+  --color-secondary: #43637E;      /* Steel Blue */
+  --color-secondary-hover: #321E48;
+}
+
+@theme {
+  /* Map standard tailwind colors to our semantic CSS variables */
+  --color-slate-950: var(--bg-base);
+  --color-slate-900: var(--bg-surface);
+  --color-slate-850: var(--border-color);
+  --color-slate-800: var(--border-color);
+  --color-slate-700: var(--text-muted); /* Maps to text-muted to ensure readability */
+  --color-slate-600: var(--text-muted);
+  --color-slate-500: var(--text-muted);
+  --color-slate-400: var(--text-muted);
+  --color-slate-350: var(--text-muted);
+  --color-slate-300: var(--text-base);
+  --color-slate-200: var(--text-bright);
+  --color-slate-100: var(--text-bright);
+  --color-slate-50: var(--text-bright);
+  
+  --color-emerald-600: var(--color-primary);
+  --color-emerald-500: var(--color-primary-hover);
+  --color-emerald-450: var(--color-primary-hover);
+  --color-emerald-450\/10: var(--color-primary-bg-light);
+  --color-emerald-400: var(--color-primary);
 }
 
 /* Leaflet Map styles */
 @import "leaflet/dist/leaflet.css";
 
-/* Styling adjustments for premium design aesthetics */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  @apply bg-slate-900 text-slate-100 antialiased;
+  font-family: 'Ranade', 'Inter', sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-base);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Headings font overrides for strong bold look */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Ranade', 'Outfit', sans-serif;
+  font-weight: 700 !important; /* Make headings bold */
+  color: var(--text-bright) !important;
+}
+
+/* Global Light Mode overrides for text elements styled as text-white outside dark buttons */
+html.light .text-white {
+  color: var(--text-bright) !important;
+}
+
+/* Keep primary buttons text legible in both modes */
+.bg-emerald-600, .bg-emerald-500, .bg-emerald-400,
+.hover\:bg-emerald-500:hover, .hover\:bg-emerald-600:hover {
+  color: var(--color-primary-button-text) !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure button white text overrides are preserved for primary active buttons */
+html.light .bg-emerald-600.text-white,
+html.light .bg-emerald-500.text-white,
+html.light .bg-emerald-400.text-white,
+html.light button.bg-emerald-600,
+html.light a.bg-emerald-600 {
+  color: var(--color-primary-button-text) !important;
+}
+
+/* Light mode overrides for badge utility classes to resolve invisible text */
+html.light .bg-blue-950, html.light .bg-blue-900, html.light .bg-blue-900\/20 {
+  background-color: #eff6ff !important;
+  color: #1e40af !important;
+  border-color: rgba(30, 64, 175, 0.2) !important;
+}
+html.light .text-blue-400 {
+  color: #1d4ed8 !important;
+}
+
+html.light .bg-emerald-950, html.light .bg-emerald-900, html.light .bg-emerald-950\/60, html.light .bg-emerald-950\/30 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: rgba(6, 95, 70, 0.2) !important;
+}
+html.light .text-emerald-400, html.light .text-emerald-450 {
+  color: #047857 !important;
+}
+
+html.light .bg-amber-950, html.light .bg-amber-900 {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+  border-color: rgba(146, 64, 14, 0.2) !important;
+}
+html.light .text-amber-400, html.light .text-yellow-400 {
+  color: #b45309 !important;
+}
+
+html.light .bg-red-950, html.light .bg-red-900 {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: rgba(153, 27, 27, 0.2) !important;
+}
+html.light .text-red-400 {
+  color: #b91c1c !important;
+}
+
+/* Premium Dialog box/Modal styling overrides based on theme */
+.dialog-box, [role="dialog"], .modal-content, .fixed.inset-0 .bg-slate-900 {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 25px 50px -12px rgba(50, 30, 72, 0.4) !important;
+  color: var(--text-base) !important;
+}
+
+html.light .dialog-box, html.light [role="dialog"], html.light .modal-content, html.light .fixed.inset-0 .bg-slate-900 {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(67, 99, 126, 0.25) !important;
+  box-shadow: 0 25px 50px -12px rgba(50, 30, 72, 0.15) !important;
+}
+
+/* Card hover micro-animations & glowing border matching user palette */
+.bg-slate-900, .bg-slate-900\/60, .bg-slate-900\/10 {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bg-slate-900:hover, .bg-slate-900\/60:hover {
+  border-color: var(--border-color-hover) !important;
+  box-shadow: 0 12px 24px -10px rgba(101, 220, 213, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+/* Active links custom gradients blending Teal and Purple */
+.bg-emerald-600\/10 {
+  background: linear-gradient(135deg, rgba(101, 220, 213, 0.15) 0%, rgba(50, 30, 72, 0.4) 100%) !important;
+  border-left: 4px solid var(--color-primary) !important;
+}
+html.light .bg-emerald-600\/10 {
+  background: linear-gradient(135deg, rgba(101, 220, 213, 0.2) 0%, rgba(217, 255, 244, 0.5) 100%) !important;
+  border-left: 4px solid var(--color-primary) !important;
 }
 
 /* Custom scrollbars */
@@ -28,59 +182,67 @@ body {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  background: var(--bg-base);
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-700 rounded-full;
+  background: var(--border-color);
+  border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-600;
+  background: var(--text-muted);
 }
 
-/* Glassmorphism utility */
+/* Glassmorphism overrides */
 .glass {
-  background: rgba(30, 41, 59, 0.7);
+  background: var(--bg-surface) !important;
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 }
-
 .glass-card {
-  background: rgba(30, 41, 59, 0.45);
+  background: var(--bg-surface) !important;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
 }
 
-/* Leaflet Popup overrides for premium dark style */
+/* Input overrides for light/dark support */
+input, select, textarea {
+  background-color: var(--bg-base) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-bright) !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary) !important;
+  outline: none;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7 !important;
+}
+
+/* Leaflet Popup overrides for premium styling */
 .leaflet-popup-content-wrapper {
-  background: #0f172a !important; /* bg-slate-900 */
-  color: #e2e8f0 !important;      /* text-slate-200 */
-  border: 1px solid #1e293b !important; /* border-slate-800 */
-  border-radius: 1.25rem !important; /* rounded-2xl */
+  background: var(--bg-surface) !important;
+  color: var(--text-base) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 1.25rem !important;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5) !important;
   padding: 0 !important;
 }
-
 .leaflet-popup-content {
   margin: 0 !important;
   padding: 0 !important;
   width: auto !important;
 }
-
 .leaflet-popup-tip {
-  background: #0f172a !important; /* matches popup background */
-  border: 1px solid #1e293b !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
 }
-
 .leaflet-popup-close-button {
-  color: #64748b !important; /* text-slate-500 */
+  color: var(--text-muted) !important;
   font-size: 14px !important;
   padding: 8px 12px 0 0 !important;
 }
-
 .leaflet-popup-close-button:hover {
-  color: #f1f5f9 !important; /* text-slate-100 */
+  color: var(--text-bright) !important;
 }
