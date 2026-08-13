@@ -193,7 +193,6 @@ const Register = () => {
                   required
                 />
               </div>
-<<<<<<< HEAD
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">WhatsApp Number <span className="text-slate-500 font-normal lowercase">(optional)</span></label>
                 <input
@@ -203,7 +202,6 @@ const Register = () => {
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                   placeholder="e.g. 0771234567"
                 />
-=======
 
               <div className="md:col-span-2 space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-850">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profile Picture (Upload Image or Paste URL)</label>
