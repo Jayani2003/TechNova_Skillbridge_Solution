@@ -14,6 +14,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
+  const [profileImage, setProfileImage] = useState('');
 
   // Student specific
   const [university, setUniversity] = useState('University of Ruhuna');
@@ -28,6 +29,17 @@ const Register = () => {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,6 +57,7 @@ const Register = () => {
       phone,
       user_type: userType,
       location,
+      profile_image: profileImage || null,
       latitude: 6.0535 + (Math.random() - 0.5) * 0.02, // Simulate coordinates around Matara
       longitude: 80.5332 + (Math.random() - 0.5) * 0.02,
       ...(userType === 'STUDENT' 
@@ -78,9 +91,7 @@ const Register = () => {
 
       {/* Brand Title */}
       <Link to="/" className="flex items-center gap-3 mb-8">
-        <div className="bg-emerald-600 w-10 h-10 rounded-xl text-white font-bold font-outfit text-xl flex items-center justify-center shadow-lg shadow-emerald-950/40">
-          S
-        </div>
+        <img src="/logo.png" alt="SkillBridge Logo" className="h-10 w-10 object-contain bg-white rounded-xl p-0.5 shadow-lg shadow-emerald-950/40" />
         <div>
           <span className="font-bold text-xl font-outfit tracking-wide text-white block">SkillBridge</span>
           <span className="text-[10px] text-emerald-400 font-semibold tracking-widest uppercase">Local Economy</span>
@@ -172,6 +183,53 @@ const Register = () => {
                   placeholder="e.g. 0771234567"
                   required
                 />
+              </div>
+
+              <div className="md:col-span-2 space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-850">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profile Picture (Upload Image or Paste URL)</label>
+                
+                {profileImage && (
+                  <div className="flex items-center gap-3 pb-2 border-b border-slate-800">
+                    <img 
+                      src={profileImage} 
+                      alt="Profile preview" 
+                      className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500 bg-slate-950" 
+                    />
+                    <div className="text-xs">
+                      <span className="font-semibold text-emerald-400 block">Image Loaded</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setProfileImage('')}
+                        className="text-[10px] text-red-400 hover:underline"
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Option A: Choose Image File</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageFileChange}
+                      className="text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-950 file:text-emerald-400 hover:file:bg-emerald-900 cursor-pointer w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <span className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Option B: Image URL Link</span>
+                    <input
+                      type="text"
+                      value={profileImage}
+                      onChange={(e) => setProfileImage(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-slate-100 text-xs placeholder-slate-700 focus:outline-none transition"
+                      placeholder="https://example.com/photo.jpg"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
