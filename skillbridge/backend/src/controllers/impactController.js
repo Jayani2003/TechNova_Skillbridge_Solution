@@ -47,15 +47,15 @@ exports.getGlobalImpact = async (req, res) => {
     `);
 
     res.json({
-      studentsConnected: studentCount + 112, // Adding seed baseline for demonstration
-      communityConnected: communityCount + 85,
-      opportunitiesPosted: opportunitiesCount + 74,
-      jobsCompleted: jobsCompletedCount + 58,
-      totalIncomeGenerated: incomeGenerated + 145000,
-      resourcesDonated: donatedItems[0].count + 32,
-      resourcesReused: totalReused + 41,
-      peopleHelped: helpedStats[0].count + 92,
-      estimatedCommunitySavings: estimatedSavings + 62000
+      studentsConnected: studentCount,
+      communityConnected: communityCount,
+      opportunitiesPosted: opportunitiesCount,
+      jobsCompleted: jobsCompletedCount,
+      totalIncomeGenerated: incomeGenerated,
+      resourcesDonated: donatedItems[0].count,
+      resourcesReused: totalReused,
+      peopleHelped: helpedStats[0].count,
+      estimatedCommunitySavings: estimatedSavings
     });
   } catch (error) {
     console.error(error);

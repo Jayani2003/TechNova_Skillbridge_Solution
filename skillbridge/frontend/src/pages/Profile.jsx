@@ -33,6 +33,7 @@ const Profile = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
+  const [profileImage, setProfileImage] = useState('');
   
   // Student fields
   const [university, setUniversity] = useState('');
@@ -54,6 +55,17 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const handleImageFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -69,6 +81,7 @@ const Profile = () => {
       setFullName(data.full_name || '');
       setPhone(data.phone || '');
       setLocation(data.location || '');
+      setProfileImage(data.profile_image || '');
       
       if (data.user_type === 'STUDENT') {
         setUniversity(data.university || '');
@@ -116,6 +129,7 @@ const Profile = () => {
       full_name: fullName.trim(),
       phone: phone.trim(),
       location: location.trim(),
+      profile_image: profileImage ? profileImage.trim() : null,
       user_type: targetUserType,
       ...(isStudentUser
         ? { 
@@ -270,6 +284,53 @@ const Profile = () => {
                     className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition"
                     required
                   />
+                </div>
+
+                <div className="md:col-span-2 space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profile Picture (Upload Image File or Paste URL)</label>
+                  
+                  {profileImage && (
+                    <div className="flex items-center gap-3 pb-2 border-b border-slate-850">
+                      <img 
+                        src={profileImage} 
+                        alt="Profile preview" 
+                        className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 bg-slate-900 shadow-md" 
+                      />
+                      <div className="text-xs">
+                        <span className="font-semibold text-emerald-400 block">Avatar Image Loaded</span>
+                        <button 
+                          type="button" 
+                          onClick={() => setProfileImage('')}
+                          className="text-[10px] text-red-400 hover:underline cursor-pointer"
+                        >
+                          Remove image
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <span className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Option A: Upload Image File</span>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-950 file:text-emerald-400 hover:file:bg-emerald-900 cursor-pointer w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <span className="block text-[9px] font-bold text-slate-500 uppercase mb-1">Option B: Image URL Link</span>
+                      <input 
+                        type="text" 
+                        value={profileImage}
+                        onChange={(e) => setProfileImage(e.target.value)}
+                        placeholder="https://example.com/my-photo.jpg"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-500 transition"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

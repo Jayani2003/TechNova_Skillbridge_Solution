@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Sparkles, Key, Mail, Zap, ArrowRight, ChevronLeft } from 'lucide-react';
+import { Shield, Key, Mail, ArrowRight, ChevronLeft } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -31,21 +31,8 @@ const Login = () => {
     }
   };
 
-  const handleQuickLogin = async (demoEmail) => {
-    setLoading(true);
-    setError('');
-    try {
-      await login(demoEmail, 'password123');
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.message || 'Quick login failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center py-12 px-6">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center py-12 px-6 selection:bg-emerald-500 selection:text-white">
       <div className="w-full max-w-md mb-4">
         <Link
           to="/"
@@ -58,9 +45,7 @@ const Login = () => {
 
       {/* Platform Title */}
       <Link to="/" className="flex items-center gap-3 mb-8">
-        <div className="bg-emerald-600 w-10 h-10 rounded-xl text-white font-bold font-outfit text-xl flex items-center justify-center shadow-lg shadow-emerald-950/40">
-          S
-        </div>
+        <img src="/logo.png" alt="SkillBridge Logo" className="h-10 w-10 object-contain bg-white rounded-xl p-0.5 shadow-lg shadow-emerald-950/40" />
         <div>
           <span className="font-bold text-xl font-outfit tracking-wide text-white block">SkillBridge</span>
           <span className="text-[10px] text-emerald-400 font-semibold tracking-widest uppercase">Local Economy</span>
@@ -120,7 +105,7 @@ const Login = () => {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold transition text-sm flex items-center justify-center gap-2 mt-6 shadow-lg shadow-emerald-900/20"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold transition text-sm flex items-center justify-center gap-2 mt-6 shadow-lg shadow-emerald-900/20 cursor-pointer"
           >
             {loading ? 'Authenticating...' : 'Sign In'}
             {!loading && <ArrowRight size={16} />}
@@ -133,29 +118,6 @@ const Login = () => {
             Register Here
           </Link>
         </p>
-
-        {/* Hackathon Quick Access */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block text-center mb-3 flex items-center justify-center gap-1">
-            <Zap size={12} className="text-emerald-500" /> Demo Quick Sign-in
-          </span>
-          <div className="grid grid-cols-2 gap-3">
-            <button 
-              onClick={() => handleQuickLogin('student@skillbridge.demo')}
-              className="bg-slate-950 hover:bg-slate-950/70 border border-slate-800/60 p-2.5 rounded-xl text-left text-xs transition hover:border-emerald-500/30"
-            >
-              <span className="text-[9px] font-bold text-emerald-400 tracking-wider block">🎓 STUDENT</span>
-              <span className="text-slate-300 truncate block font-medium">Alex Fernando</span>
-            </button>
-            <button 
-              onClick={() => handleQuickLogin('community@skillbridge.demo')}
-              className="bg-slate-950 hover:bg-slate-950/70 border border-slate-800/60 p-2.5 rounded-xl text-left text-xs transition hover:border-emerald-500/30"
-            >
-              <span className="text-[9px] font-bold text-orange-400 tracking-wider block">👤 COMMUNITY</span>
-              <span className="text-slate-300 truncate block font-medium">Kasun Perera</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

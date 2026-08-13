@@ -118,3 +118,59 @@ exports.deleteBoarding = async (req, res) => {
     res.status(500).json({ message: 'Error deleting boarding listing.' });
   }
 };
+
+exports.updateBoarding = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  const { title, description, price, location, distance_from_faculty, available_date, rooms_count, facilities, contact_method, status } = req.body;
+
+  try {
+    const [check] = await db.query('SELECT poster_id FROM boarding WHERE id = ?', [id]);
+    if (check.length === 0) {
+      return res.status(404).json({ message: 'Boarding listing not found.' });
+    }
+    if (check[0].poster_id !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to edit this listing.' });
+    }
+
+    const facilitiesStr = Array.isArray(facilities) ? facilities.join(',') : (facilities || '');
+    const validStatus = (status === 'UNAVAILABLE' || status === 'AVAILABLE') ? status : 'AVAILABLE';
+
+    await db.query(
+      `UPDATE boarding 
+       SET title = ?, description = ?, price = ?, location = ?, distance_from_faculty = ?, available_date = ?, rooms_count = ?, facilities = ?, contact_method = ?, status = ?
+       WHERE id = ?`,
+      [title, description, price, location, distance_from_faculty, available_date, rooms_count || 1, facilitiesStr, contact_method, validStatus, id]
+    );
+
+    res.json({ message: 'Boarding listing updated successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating boarding listing.' });
+  }
+};
+
+exports.toggleBoardingStatus = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  const { status } = req.body;
+
+  try {
+    const [check] = await db.query('SELECT poster_id, status FROM boarding WHERE id = ?', [id]);
+    if (check.length === 0) {
+      return res.status(404).json({ message: 'Boarding listing not found.' });
+    }
+    if (check[0].poster_id !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to update status for this listing.' });
+    }
+
+    const newStatus = status ? status : (check[0].status === 'UNAVAILABLE' ? 'AVAILABLE' : 'UNAVAILABLE');
+
+    await db.query('UPDATE boarding SET status = ? WHERE id = ?', [newStatus, id]);
+
+    res.json({ message: `Boarding status updated to ${newStatus}`, status: newStatus });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating boarding status.' });
+  }
+};
