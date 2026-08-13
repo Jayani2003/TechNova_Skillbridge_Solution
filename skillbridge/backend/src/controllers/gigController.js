@@ -23,7 +23,7 @@ async function attachSkillsToGigs(gigs) {
 }
 
 exports.getAllGigs = async (req, res) => {
-  const { category, search, minBudget, maxBudget, status } = req.query;
+  const { category, search, minBudget, maxBudget, status, posterId } = req.query;
   
   let query = `
     SELECT g.*, u.full_name as poster_name, u.user_type as poster_type, u.profile_image as poster_image
@@ -56,8 +56,14 @@ exports.getAllGigs = async (req, res) => {
   if (status) {
     query += ' AND g.status = ?';
     params.push(status);
-  } else {
+  } else if (!posterId) {
+    // Only default to OPEN if we are not explicitly fetching all gigs for a specific poster
     query += " AND g.status = 'OPEN'";
+  }
+
+  if (posterId) {
+    query += ' AND g.poster_id = ?';
+    params.push(posterId);
   }
 
   query += ' ORDER BY g.created_at DESC';

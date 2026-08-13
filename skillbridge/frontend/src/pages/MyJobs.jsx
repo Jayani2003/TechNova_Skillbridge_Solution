@@ -98,8 +98,8 @@ const MyJobs = () => {
     }
   };
 
-  const postedJobs = jobs.filter(j => j.poster_id === user.id);
-  const acceptedJobs = jobs.filter(j => j.worker_id === user.id);
+  const postedJobs = jobs.filter(j => Number(j.poster_id) === Number(user.id));
+  const acceptedJobs = jobs.filter(j => Number(j.worker_id) === Number(user.id));
 
   return (
     <div className="space-y-8 pb-12">
@@ -195,7 +195,7 @@ const MyJobs = () => {
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-0.5"
                         >
                           <Star size={10} className="fill-white" />
-                          <span>Rate Student</span>
+                          <span>Rate Worker</span>
                         </button>
                       )}
 
@@ -244,7 +244,15 @@ const MyJobs = () => {
                         <span className="text-[10px] text-slate-500 italic">Job successfully completed. Earnings updated.</span>
                       )}
                       {job.status === 'IN_PROGRESS' && (
-                        <span className="text-[10px] text-blue-400 flex items-center gap-1"><Clock size={10} /> In Progress...</span>
+                        <>
+                          <span className="text-[10px] text-blue-400 flex items-center gap-1 mr-2"><Clock size={10} /> In Progress...</span>
+                          <button
+                            onClick={() => handleUpdateStatus(job.id, 'COMPLETED')}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
+                          >
+                            Mark as Completed
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
