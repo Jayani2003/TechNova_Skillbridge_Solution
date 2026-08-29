@@ -24,8 +24,6 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [impact, setImpact] = useState(null);
-  const [recentGigs, setRecentGigs] = useState([]);
-  const [recentBoardings, setRecentBoardings] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
   useEffect(() => {
@@ -51,12 +49,6 @@ const Home = () => {
       try {
         const impactData = await api.get('/impact');
         setImpact(impactData);
-
-        const gigsData = await api.get('/gigs');
-        setRecentGigs(gigsData.slice(0, 3));
-
-        const boardingData = await api.get('/boarding');
-        setRecentBoardings(boardingData.slice(0, 2));
       } catch (err) {
         console.error('Error fetching home data', err);
       }
@@ -94,134 +86,51 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center flex-1 w-full">
-        {/* Left Column - Pitch */}
-        <div className="lg:col-span-7 space-y-8">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-emerald-400 text-xs font-semibold tracking-wide">
-            <Sparkles size={14} />
-            <span>Hyperlocal Economy Platform for Students & Surroundings</span>
-          </div>
-
-          <h1 className="text-4xl md:text-6xl font-extrabold font-outfit leading-tight tracking-tight text-white">
-            Turn Skills Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300">Opportunities.</span>
-          </h1>
-
-          <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
-            SkillBridge connects university students with local residents and small businesses. Find flexible micro-jobs, rent affordable student housing, trade academic resources, and build your professional reputation.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
-              <span>Get Started Now</span>
-              <ArrowRight size={18} />
-            </Link>
-            <Link to="/login" className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center">
-              Sign In to Dashboard
-            </Link>
-          </div>
-
-          {/* Quick Real Stats Grid */}
-          {impact && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-slate-900">
-              <div>
-                <span className="text-2xl md:text-3xl font-bold text-white font-outfit block">{impact.studentsConnected}</span>
-                <span className="text-xs text-slate-500 font-medium">Registered Students</span>
-              </div>
-              <div>
-                <span className="text-2xl md:text-3xl font-bold text-white font-outfit block">{impact.opportunitiesPosted}</span>
-                <span className="text-xs text-slate-500 font-medium">Gigs & Opportunities</span>
-              </div>
-              <div>
-                <span className="text-2xl md:text-3xl font-bold text-emerald-400 font-outfit block">Rs. {impact.totalIncomeGenerated.toLocaleString()}</span>
-                <span className="text-xs text-slate-500 font-medium">Total Student Income</span>
-              </div>
-              <div>
-                <span className="text-2xl md:text-3xl font-bold text-green-400 font-outfit block">Rs. {impact.estimatedCommunitySavings.toLocaleString()}</span>
-                <span className="text-xs text-slate-500 font-medium">Community Savings</span>
-              </div>
-            </div>
-          )}
+      <div className="max-w-4xl mx-auto px-6 py-12 md:py-24 flex flex-col items-center justify-center text-center flex-1 w-full space-y-8">
+        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-emerald-400 text-xs font-semibold tracking-wide">
+          <Sparkles size={14} />
+          <span>Hyperlocal Economy Platform for Students & Surroundings</span>
         </div>
 
-        {/* Right Column - Live Platform Activity Preview */}
-        <div className="lg:col-span-5">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-950 relative overflow-hidden space-y-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl"></div>
+        <h1 className="text-4xl md:text-6xl font-extrabold font-outfit leading-tight tracking-tight text-white">
+          Turn Skills Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300">Opportunities.</span>
+        </h1>
 
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white font-outfit flex items-center gap-2">
-                <Zap className="text-emerald-500 fill-emerald-500" size={18} />
-                <span>Live Platform Opportunities</span>
-              </h2>
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 border border-emerald-900/50 px-2 py-0.5 rounded">
-                Real-Time Data
-              </span>
+        <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+          SkillBridge connects university students with local residents and small businesses. Find flexible micro-jobs, rent affordable student housing, trade academic resources, and build your professional reputation.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+          <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
+            <span>Get Started Now</span>
+            <ArrowRight size={18} />
+          </Link>
+          <Link to="/login" className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center">
+            Sign In to Dashboard
+          </Link>
+        </div>
+
+        {/* Quick Real Stats Grid */}
+        {impact && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 mt-6 w-full max-w-4xl border-t border-slate-900 text-center">
+            <div>
+              <span className="text-2xl md:text-3xl font-bold text-white font-outfit block">{impact.studentsConnected}</span>
+              <span className="text-xs text-slate-500 font-medium">Registered Students</span>
             </div>
-
-            {/* Live Gigs Preview */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-emerald-400" /> Active Gigs</span>
-                <Link to="/login" className="text-emerald-400 hover:underline text-[11px] font-semibold flex items-center">
-                  <span>View All</span>
-                  <ChevronRight size={12} />
-                </Link>
-              </div>
-
-              {recentGigs.length > 0 ? (
-                recentGigs.map(gig => (
-                  <div key={gig.id} className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex items-center justify-between gap-3">
-                    <div className="truncate">
-                      <span className="font-semibold text-xs text-slate-200 block truncate">{gig.title}</span>
-                      <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                        <MapPin size={10} /> {gig.location}
-                      </span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-400 whitespace-nowrap">
-                      Rs. {parseFloat(gig.budget).toLocaleString()}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-slate-500 italic">Loading active gigs...</p>
-              )}
+            <div>
+              <span className="text-2xl md:text-3xl font-bold text-white font-outfit block">{impact.opportunitiesPosted}</span>
+              <span className="text-xs text-slate-500 font-medium">Gigs & Opportunities</span>
             </div>
-
-            {/* Live Boarding Preview */}
-            <div className="space-y-3 pt-3 border-t border-slate-850">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <span className="flex items-center gap-1.5"><HomeIcon size={14} className="text-blue-400" /> Boarding Spaces</span>
-                <Link to="/login" className="text-emerald-400 hover:underline text-[11px] font-semibold flex items-center">
-                  <span>View All</span>
-                  <ChevronRight size={12} />
-                </Link>
-              </div>
-
-              {recentBoardings.length > 0 ? (
-                recentBoardings.map(b => (
-                  <div key={b.id} className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex items-center justify-between gap-3">
-                    <div className="truncate">
-                      <span className="font-semibold text-xs text-slate-200 block truncate">{b.title}</span>
-                      <span className="text-[10px] text-slate-500 block mt-0.5">{b.distance_from_faculty} km from campus</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-400 whitespace-nowrap">
-                      Rs. {parseFloat(b.price).toLocaleString()}/mo
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-slate-500 italic">Loading boarding listings...</p>
-              )}
+            <div>
+              <span className="text-2xl md:text-3xl font-bold text-emerald-400 font-outfit block">Rs. {impact.totalIncomeGenerated.toLocaleString()}</span>
+              <span className="text-xs text-slate-500 font-medium">Total Student Income</span>
             </div>
-
-            <div className="pt-2 text-center">
-              <Link to="/register" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/30">
-                <span>Join SkillBridge Today</span>
-                <ArrowRight size={14} />
-              </Link>
+            <div>
+              <span className="text-2xl md:text-3xl font-bold text-green-400 font-outfit block">Rs. {impact.estimatedCommunitySavings.toLocaleString()}</span>
+              <span className="text-xs text-slate-500 font-medium">Community Savings</span>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Feature Pillar Badges */}
