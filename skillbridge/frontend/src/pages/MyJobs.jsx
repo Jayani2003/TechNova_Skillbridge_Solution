@@ -21,6 +21,7 @@ const MyJobs = () => {
   
   // Lists
   const [jobs, setJobs] = useState([]);
+  const [myGigs, setMyGigs] = useState([]);
   const [summary, setSummary] = useState({
     total_earned: 0,
     total_spent: 0,
@@ -47,6 +48,9 @@ const MyJobs = () => {
       const data = await api.get('/jobs');
       setJobs(data.jobs);
       setSummary(data.summary);
+      
+      const gigsData = await api.get(`/gigs?posterId=${user.id}`);
+      setMyGigs(gigsData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -100,6 +104,10 @@ const MyJobs = () => {
 
   const postedJobs = jobs.filter(j => Number(j.poster_id) === Number(user.id));
   const acceptedJobs = jobs.filter(j => Number(j.worker_id) === Number(user.id));
+  const openGigs = myGigs.filter(g => g.status === 'OPEN' || g.status === 'APPLIED');
+  
+  // Combine open gigs with actual jobs for the "Jobs I Posted" section
+  const allPostedItems = [...openGigs, ...postedJobs].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   return (
     <div className="space-y-8 pb-12">
@@ -151,34 +159,36 @@ const MyJobs = () => {
           </h2>
 
           <div className="space-y-4">
-            {postedJobs.length > 0 ? (
-              postedJobs.map(job => (
-                <div key={job.id} className="bg-slate-900/60 border border-slate-850 rounded-2xl p-5 space-y-4 shadow-sm hover:border-slate-800 transition">
+            {allPostedItems.length > 0 ? (
+              allPostedItems.map(item => (
+                <div key={`${item.status === 'OPEN' || item.status === 'APPLIED' ? 'gig' : 'job'}-${item.id}`} className="bg-slate-900/60 border border-slate-850 rounded-2xl p-5 space-y-4 shadow-sm hover:border-slate-800 transition">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${job.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : job.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
-                        {job.status.replace('_', ' ')}
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${item.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : item.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : item.status === 'OPEN' ? 'bg-slate-800 border-slate-600 text-slate-300' : item.status === 'APPLIED' ? 'bg-purple-950 border-purple-500/50 text-purple-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
+                        {item.status.replace('_', ' ')}
                       </span>
-                      <h3 className="font-bold text-slate-200 text-sm mt-2 leading-snug">{job.title}</h3>
-                      <p className="text-[11px] text-slate-400 mt-1">Hired Worker: {job.worker_name}</p>
+                      <h3 className="font-bold text-slate-200 text-sm mt-2 leading-snug">{item.title}</h3>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        {item.status === 'OPEN' || item.status === 'APPLIED' ? 'Status: Waiting for hire' : `Hired Worker: ${item.worker_name}`}
+                      </p>
                     </div>
-                    <span className="font-bold text-xs text-emerald-400">Rs. {parseFloat(job.budget).toLocaleString()}</span>
+                    <span className="font-bold text-xs text-emerald-400">Rs. {parseFloat(item.budget).toLocaleString()}</span>
                   </div>
 
                   <div className="text-[11px] text-slate-500 border-t border-slate-850/60 pt-3 flex items-center justify-between">
-                    <span>Started: {new Date(job.created_at).toLocaleDateString()}</span>
+                    <span>{item.status === 'OPEN' || item.status === 'APPLIED' ? 'Posted' : 'Started'}: {new Date(item.created_at).toLocaleDateString()}</span>
                     
                     <div className="flex gap-2">
-                      {job.status === 'IN_PROGRESS' && (
+                      {item.status === 'IN_PROGRESS' && (
                         <>
                           <button
-                            onClick={() => handleUpdateStatus(job.id, 'COMPLETED')}
+                            onClick={() => handleUpdateStatus(item.id, 'COMPLETED')}
                             className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
                           >
                             Complete Job
                           </button>
                           <button
-                            onClick={() => handleUpdateStatus(job.id, 'CANCELLED')}
+                            onClick={() => handleUpdateStatus(item.id, 'CANCELLED')}
                             className="bg-slate-950 hover:bg-red-950/20 text-slate-500 hover:text-red-400 border border-slate-850 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
                           >
                             Cancel
@@ -186,10 +196,10 @@ const MyJobs = () => {
                         </>
                       )}
 
-                      {job.status === 'COMPLETED' && !job.worker_rating && (
+                      {item.status === 'COMPLETED' && !item.worker_rating && (
                         <button
                           onClick={() => {
-                            setSelectedJobForRating(job);
+                            setSelectedJobForRating(item);
                             setShowRateModal(true);
                           }}
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-0.5"
@@ -199,8 +209,12 @@ const MyJobs = () => {
                         </button>
                       )}
 
-                      {job.worker_rating && (
-                        <span className="text-[10px] text-slate-500 italic">Rated: {job.worker_rating} Stars</span>
+                      {item.worker_rating && (
+                        <span className="text-[10px] text-slate-500 italic">Rated: {item.worker_rating} Stars</span>
+                      )}
+                      
+                      {(item.status === 'OPEN' || item.status === 'APPLIED') && (
+                        <span className="text-[10px] text-slate-400 italic">No actions yet</span>
                       )}
                     </div>
                   </div>
