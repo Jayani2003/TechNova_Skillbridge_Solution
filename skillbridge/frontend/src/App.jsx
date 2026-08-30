@@ -17,6 +17,7 @@ import MyJobs from './pages/MyJobs';
 import Messages from './pages/Messages';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -65,6 +66,7 @@ function App() {
           <Route path="/messages" element={<LayoutWrapper><Messages /></LayoutWrapper>} />
           <Route path="/notifications" element={<LayoutWrapper><Notifications /></LayoutWrapper>} />
           <Route path="/profile" element={<LayoutWrapper><Profile /></LayoutWrapper>} />
+          <Route path="/admin" element={<LayoutWrapper><AdminDashboard /></LayoutWrapper>} />
 
           {/* Fallback Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />

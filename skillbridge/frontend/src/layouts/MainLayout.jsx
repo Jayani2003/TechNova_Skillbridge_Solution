@@ -18,7 +18,8 @@ import {
   X,
   Sparkles,
   Sun,
-  Moon
+  Moon,
+  Shield
 } from 'lucide-react';
 
 const MainLayout = ({ children }) => {
@@ -90,18 +91,29 @@ const MainLayout = ({ children }) => {
     setShowLogoutConfirm(false);
   };
 
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Gigs / Jobs Board', path: '/gigs', icon: Briefcase },
-    { name: 'Find Talent', path: '/talent', icon: Search },
-    { name: 'Nearby Map', path: '/nearby', icon: MapPin },
-    { name: 'Boarding Lodging', path: '/boarding', icon: HomeIcon },
-    { name: 'Donate & Resources', path: '/resources', icon: Gift },
-    { name: 'My Jobs Tracker', path: '/my-jobs', icon: ClipboardList },
-    { name: 'Messages', path: '/messages', icon: MessageSquare, badge: unreadMessages },
-    { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadNotifications },
-    { name: 'My Profile', path: '/profile', icon: User },
-  ];
+  let navItems = [];
+
+  if (user && user.user_type === 'ADMIN') {
+    navItems = [
+      { name: 'Admin Panel', path: '/admin', icon: Shield },
+      { name: 'Messages', path: '/messages', icon: MessageSquare, badge: unreadMessages },
+      { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadNotifications },
+      { name: 'My Profile', path: '/profile', icon: User },
+    ];
+  } else {
+    navItems = [
+      { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      { name: 'Gigs / Jobs Board', path: '/gigs', icon: Briefcase },
+      { name: 'Find Talent', path: '/talent', icon: Search },
+      { name: 'Nearby Map', path: '/nearby', icon: MapPin },
+      { name: 'Boarding Lodging', path: '/boarding', icon: HomeIcon },
+      { name: 'Donate & Resources', path: '/resources', icon: Gift },
+      { name: 'My Jobs Tracker', path: '/my-jobs', icon: ClipboardList },
+      { name: 'Messages', path: '/messages', icon: MessageSquare, badge: unreadMessages },
+      { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadNotifications },
+      { name: 'My Profile', path: '/profile', icon: User },
+    ];
+  }
 
   const isActive = (path) => location.pathname === path;
 

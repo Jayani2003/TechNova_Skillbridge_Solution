@@ -13,7 +13,8 @@ import {
   X,
   User,
   ShieldCheck,
-  ClipboardList
+  ClipboardList,
+  AlertTriangle
 } from 'lucide-react';
 
 const MyJobs = () => {
@@ -71,6 +72,19 @@ const MyJobs = () => {
       fetchJobs();
     } catch (err) {
       setError(err.message || 'Error updating job status.');
+    }
+  };
+
+  const handleReportDispute = async (jobId) => {
+    if (!window.confirm('Are you sure you want to report this job to the admin?')) return;
+    setError('');
+    setSuccess('');
+    try {
+      await api.post(`/jobs/${jobId}/dispute`);
+      setSuccess('Job reported to Admin successfully. They will review it shortly.');
+      fetchJobs();
+    } catch (err) {
+      setError(err.message || 'Error reporting dispute.');
     }
   };
 
@@ -199,6 +213,22 @@ const MyJobs = () => {
                           </button>
                         </>
                       )}
+                      
+                      {(item.status === 'IN_PROGRESS' || item.status === 'WORK_DONE') && !item.has_dispute && (
+                        <button
+                          onClick={() => handleReportDispute(item.id)}
+                          className="bg-red-950/40 hover:bg-red-900 border border-red-900/50 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1"
+                        >
+                          <AlertTriangle size={10} />
+                          Report Issue
+                        </button>
+                      )}
+                      
+                      {item.has_dispute && (
+                        <span className="text-[10px] font-bold text-red-400 bg-red-950/40 px-2 py-1 rounded border border-red-900/50 flex items-center gap-1">
+                          <AlertTriangle size={10} /> Dispute under review
+                        </span>
+                      )}
 
                       {item.status === 'COMPLETED' && !item.worker_rating && (
                         <button
@@ -275,6 +305,22 @@ const MyJobs = () => {
                             Mark as Done
                           </button>
                         </>
+                      )}
+                      
+                      {(job.status === 'IN_PROGRESS' || job.status === 'WORK_DONE') && !job.has_dispute && (
+                        <button
+                          onClick={() => handleReportDispute(job.id)}
+                          className="bg-red-950/40 hover:bg-red-900 border border-red-900/50 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1"
+                        >
+                          <AlertTriangle size={10} />
+                          Report Issue
+                        </button>
+                      )}
+                      
+                      {job.has_dispute && (
+                        <span className="text-[10px] font-bold text-red-400 bg-red-950/40 px-2 py-1 rounded border border-red-900/50 flex items-center gap-1">
+                          <AlertTriangle size={10} /> Dispute under review
+                        </span>
                       )}
                     </div>
                   </div>
