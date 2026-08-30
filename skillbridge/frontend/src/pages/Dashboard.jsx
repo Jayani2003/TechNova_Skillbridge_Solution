@@ -51,15 +51,9 @@ const Dashboard = () => {
         const impactStats = await api.get('/impact');
         setStats(impactStats);
 
-        if (user.user_type === 'STUDENT') {
-          // Fetch open gigs for recommendation
-          const gigData = await api.get('/gigs?status=OPEN');
-          setGigs(gigData.slice(0, 3));
-        } else {
-          // Fetch talents for hiring recommendation
-          const talentData = await api.get('/talents');
-          setTalents(talentData.slice(0, 3));
-        }
+        // Fetch open gigs for recommendation
+        const gigData = await api.get('/gigs?status=OPEN');
+        setGigs(gigData.slice(0, 3));
       } catch (err) {
         console.error('Error loading dashboard data', err);
       } finally {
@@ -82,16 +76,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Back to Home Button */}
-      <div className="flex items-center">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 px-4 py-2.5 rounded-2xl shadow-md"
-        >
-          <ChevronLeft size={14} />
-          <span>Back to Home</span>
-        </Link>
-      </div>
+
 
       {/* 1. Welcome banner */}
       <div className="relative bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-800/80 overflow-hidden shadow-xl">
@@ -238,85 +223,41 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold font-outfit text-white flex items-center gap-2">
               <Sparkles className="text-emerald-500" size={20} />
-              <span>{isStudent ? 'Recommended Gigs For You' : 'Recommended Student Workers'}</span>
+              <span>Recommended Gigs For You</span>
             </h2>
-            <Link to={isStudent ? '/gigs' : '/talent'} className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition">
+            <Link to="/gigs" className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition">
               <span>View All</span>
               <ChevronRight size={14} />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {isStudent ? (
-              gigs.length > 0 ? (
-                gigs.map(gig => (
-                  <div key={gig.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700/60 transition group flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="space-y-2">
-                      <span className="bg-emerald-950/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-900/50 uppercase">
-                        {gig.category}
-                      </span>
-                      <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base">{gig.title}</h3>
-                      <p className="text-xs text-slate-400 line-clamp-2 max-w-xl">{gig.description}</p>
+            {gigs.length > 0 ? (
+              gigs.map(gig => (
+                <div key={gig.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700/60 transition group flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="space-y-2">
+                    <span className="bg-emerald-950/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-900/50 uppercase">
+                      {gig.category}
+                    </span>
+                    <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base">{gig.title}</h3>
+                    <p className="text-xs text-slate-400 line-clamp-2 max-w-xl">{gig.description}</p>
 
-                      <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
-                        <span className="flex items-center gap-1"><MapPin size={12} /> {gig.location}</span>
-                        <span className="font-medium text-emerald-400">Rs. {parseFloat(gig.budget).toLocaleString()}</span>
-                      </div>
+                    <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
+                      <span className="flex items-center gap-1"><MapPin size={12} /> {gig.location}</span>
+                      <span className="font-medium text-emerald-400">Rs. {parseFloat(gig.budget).toLocaleString()}</span>
                     </div>
-
-                    <Link to={`/gigs?selected=${gig.id}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
-                      <span>Apply Now</span>
-                      <ArrowRight size={12} />
-                    </Link>
                   </div>
-                ))
-              ) : (
-                <div className="bg-slate-900/20 border border-slate-800/40 p-8 text-center rounded-2xl">
-                  <p className="text-xs text-slate-500 font-medium">No open gigs recommended for your profile right now.</p>
+
+                  <Link to={`/gigs?selected=${gig.id}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
+                    <span>Apply Now</span>
+                    <ArrowRight size={12} />
+                  </Link>
                 </div>
-              )
+              ))
             ) : (
-              talents.length > 0 ? (
-                talents.map(talent => (
-                  <div key={talent.id} className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700/60 transition group flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={talent.profile_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${talent.full_name}`}
-                        alt={talent.full_name}
-                        className="w-12 h-12 rounded-full border border-slate-800 bg-slate-950"
-                      />
-                      <div>
-                        <h3 className="font-bold text-slate-200 group-hover:text-white transition text-base">{talent.full_name}</h3>
-                        <p className="text-xs text-slate-400 font-medium">{talent.faculty} • {talent.degree_program}</p>
-
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="bg-slate-950 text-slate-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-850">
-                            Reputation: {talent.opportunity_score}/100
-                          </span>
-                          <span className="text-xs text-amber-400 flex items-center gap-0.5">
-                            <Star size={12} className="fill-amber-400" /> {talent.avg_rating}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 text-[10px] text-slate-500 max-w-xs justify-start md:justify-end">
-                      {talent.skills.slice(0, 3).map(skill => (
-                        <span key={skill} className="bg-slate-950 text-slate-400 px-2 py-0.5 rounded border border-slate-850">{skill}</span>
-                      ))}
-                    </div>
-
-                    <Link to={`/talent?selected=${talent.id}&userType=${talent.user_type}`} className="w-full md:w-auto bg-slate-950 group-hover:bg-emerald-600 text-slate-300 group-hover:text-white border border-slate-800 group-hover:border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition text-center flex items-center justify-center gap-1.5 flex-shrink-0">
-                      <span>View Profile</span>
-                      <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                ))
-              ) : (
-                <div className="bg-slate-900/20 border border-slate-800/40 p-8 text-center rounded-2xl">
-                  <p className="text-xs text-slate-500 font-medium">No students recommended right now.</p>
-                </div>
-              )
+              <div className="bg-slate-900/20 border border-slate-800/40 p-8 text-center rounded-2xl">
+                <p className="text-xs text-slate-500 font-medium">No open gigs recommended right now.</p>
+              </div>
             )}
           </div>
 
