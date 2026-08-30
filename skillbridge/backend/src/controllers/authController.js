@@ -107,15 +107,9 @@ exports.register = async (req, res) => {
 
     // Insert user
     const [userRes] = await connection.query(
-
-      `INSERT INTO users (full_name, email, password_hash, phone, whatsapp_no, user_type, location, latitude, longitude)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [full_name, email, passwordHash, phone, whatsapp_no || null, user_type, location, lat, lng]
-
-      `INSERT INTO users (full_name, email, password_hash, phone, user_type, profile_image, location, latitude, longitude)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [full_name, email, passwordHash, phone, user_type, profile_image || null, location, lat, lng]
-
+      `INSERT INTO users (full_name, email, password_hash, phone, whatsapp_no, user_type, profile_image, location, latitude, longitude)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [full_name, email, passwordHash, phone, whatsapp_no || null, user_type, profile_image || null, location, lat, lng]
     );
     const userId = userRes.insertId;
 

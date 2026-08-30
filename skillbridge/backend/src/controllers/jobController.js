@@ -96,7 +96,7 @@ exports.updateJobStatus = async (req, res) => {
   const { status } = req.body; // 'COMPLETED' or 'CANCELLED'
   const userId = req.user.id;
 
-  if (status !== 'COMPLETED' && status !== 'CANCELLED') {
+  if (status !== 'WORK_DONE' && status !== 'COMPLETED' && status !== 'CANCELLED') {
     return res.status(400).json({ message: 'Invalid job status change.' });
   }
 
@@ -112,14 +112,24 @@ exports.updateJobStatus = async (req, res) => {
     }
 
     const job = jobRows[0];
-    if (job.poster_id !== userId) {
+    if (job.poster_id !== userId && job.worker_id !== userId) {
       connection.release();
-      return res.status(403).json({ message: 'Only the job poster can update the job status.' });
+      return res.status(403).json({ message: 'Only the job poster or worker can update the job status.' });
     }
 
-    if (job.status !== 'IN_PROGRESS') {
+    if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
       connection.release();
       return res.status(400).json({ message: 'This job is already completed or cancelled.' });
+    }
+
+    if (status === 'WORK_DONE' && job.worker_id !== userId) {
+      connection.release();
+      return res.status(403).json({ message: 'Only the worker can mark the job as done.' });
+    }
+
+    if (status === 'COMPLETED' && job.poster_id !== userId) {
+      connection.release();
+      return res.status(403).json({ message: 'Only the employer can release payment and mark as completed.' });
     }
 
     await connection.query('UPDATE jobs SET status = ? WHERE id = ?', [status, jobId]);
@@ -128,14 +138,23 @@ exports.updateJobStatus = async (req, res) => {
       await connection.query('UPDATE gigs SET status = ? WHERE id = ?', [status, job.gig_id]);
     }
 
-    // Notify worker
-    const notificationText = status === 'COMPLETED' 
-      ? `Your job "${job.title}" has been marked as Completed by the employer. You can now check your updated earnings and wait for their rating.`
-      : `Your job "${job.title}" has been cancelled by the employer.`;
+    // Notify the other party
+    const isEmployer = userId === job.poster_id;
+    const notifyUserId = isEmployer ? job.worker_id : job.poster_id;
+    const actor = isEmployer ? 'employer' : 'worker';
+
+    let notificationText = '';
+    if (status === 'WORK_DONE') {
+      notificationText = `The job "${job.title}" has been marked as Done by the worker. Please verify and release payment.`;
+    } else if (status === 'COMPLETED') {
+      notificationText = `The payment for "${job.title}" has been released by the employer. The job is now fully completed.`;
+    } else {
+      notificationText = `The job "${job.title}" has been cancelled by the ${actor}.`;
+    }
       
     await connection.query(
       `INSERT INTO notifications (user_id, title, content) VALUES (?, ?, ?)`,
-      [job.worker_id, `Job marked as ${status.toLowerCase()}`, notificationText]
+      [notifyUserId, `Job marked as ${status.toLowerCase()}`, notificationText]
     );
 
     await connection.commit();

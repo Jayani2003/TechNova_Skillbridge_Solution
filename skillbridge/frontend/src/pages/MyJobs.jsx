@@ -164,7 +164,7 @@ const MyJobs = () => {
                 <div key={`${item.status === 'OPEN' || item.status === 'APPLIED' ? 'gig' : 'job'}-${item.id}`} className="bg-slate-900/60 border border-slate-850 rounded-2xl p-5 space-y-4 shadow-sm hover:border-slate-800 transition">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${item.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : item.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : item.status === 'OPEN' ? 'bg-slate-800 border-slate-600 text-slate-300' : item.status === 'APPLIED' ? 'bg-purple-950 border-purple-500/50 text-purple-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${item.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : item.status === 'WORK_DONE' ? 'bg-amber-950 border-amber-500/50 text-amber-400' : item.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : item.status === 'OPEN' ? 'bg-slate-800 border-slate-600 text-slate-300' : item.status === 'APPLIED' ? 'bg-purple-950 border-purple-500/50 text-purple-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
                         {item.status.replace('_', ' ')}
                       </span>
                       <h3 className="font-bold text-slate-200 text-sm mt-2 leading-snug">{item.title}</h3>
@@ -179,14 +179,18 @@ const MyJobs = () => {
                     <span>{item.status === 'OPEN' || item.status === 'APPLIED' ? 'Posted' : 'Started'}: {new Date(item.created_at).toLocaleDateString()}</span>
                     
                     <div className="flex gap-2">
+                      {item.status === 'WORK_DONE' && (
+                        <button
+                          onClick={() => handleUpdateStatus(item.id, 'COMPLETED')}
+                          className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1"
+                        >
+                          <Coins size={10} className="text-white" />
+                          <span>Release Payment</span>
+                        </button>
+                      )}
+
                       {item.status === 'IN_PROGRESS' && (
                         <>
-                          <button
-                            onClick={() => handleUpdateStatus(item.id, 'COMPLETED')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
-                          >
-                            Complete Job
-                          </button>
                           <button
                             onClick={() => handleUpdateStatus(item.id, 'CANCELLED')}
                             className="bg-slate-950 hover:bg-red-950/20 text-slate-500 hover:text-red-400 border border-slate-850 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
@@ -241,7 +245,7 @@ const MyJobs = () => {
                 <div key={job.id} className="bg-slate-900/60 border border-slate-850 rounded-2xl p-5 space-y-4 shadow-sm hover:border-slate-800 transition">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${job.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : job.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${job.status === 'COMPLETED' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-400' : job.status === 'WORK_DONE' ? 'bg-amber-950 border-amber-500/50 text-amber-400' : job.status === 'IN_PROGRESS' ? 'bg-blue-950 border-blue-500/50 text-blue-400' : 'bg-red-950 border-red-500/50 text-red-400'}`}>
                         {job.status.replace('_', ' ')}
                       </span>
                       <h3 className="font-bold text-slate-200 text-sm mt-2 leading-snug">{job.title}</h3>
@@ -257,14 +261,18 @@ const MyJobs = () => {
                       {job.status === 'COMPLETED' && (
                         <span className="text-[10px] text-slate-500 italic">Job successfully completed. Earnings updated.</span>
                       )}
+                      {job.status === 'WORK_DONE' && (
+                        <span className="text-[10px] text-amber-400 flex items-center gap-1 mr-2"><Clock size={10} /> Waiting for payment...</span>
+                      )}
                       {job.status === 'IN_PROGRESS' && (
                         <>
                           <span className="text-[10px] text-blue-400 flex items-center gap-1 mr-2"><Clock size={10} /> In Progress...</span>
                           <button
-                            onClick={() => handleUpdateStatus(job.id, 'COMPLETED')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition"
+                            onClick={() => handleUpdateStatus(job.id, 'WORK_DONE')}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1"
                           >
-                            Mark as Completed
+                            <CheckCircle size={10} className="text-white" />
+                            Mark as Done
                           </button>
                         </>
                       )}
