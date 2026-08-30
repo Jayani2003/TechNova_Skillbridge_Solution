@@ -94,6 +94,7 @@ const DonateResources = () => {
   useEffect(() => {
     const selectedId = searchParams.get('selected');
     if (!selectedId) {
+      setSelectedResource(null);
       return;
     }
 

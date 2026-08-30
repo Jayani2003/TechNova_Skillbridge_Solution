@@ -16,6 +16,8 @@ const messageController = require('./controllers/messageController');
 const notificationController = require('./controllers/notificationController');
 const nearbyController = require('./controllers/nearbyController');
 const impactController = require('./controllers/impactController');
+const adminController = require('./controllers/adminController');
+const adminAuth = require('./middleware/adminAuth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -64,6 +66,7 @@ app.get('/api/jobs', authMiddleware, jobController.getAllJobs);
 app.get('/api/jobs/:id', authMiddleware, jobController.getJobById);
 app.put('/api/jobs/:id/status', authMiddleware, jobController.updateJobStatus);
 app.post('/api/jobs/:id/rate', authMiddleware, jobController.createRating);
+app.post('/api/jobs/:id/dispute', authMiddleware, jobController.reportDispute);
 
 app.post('/api/hire', authMiddleware, jobController.hireDirectly);
 app.post('/api/hire/respond', authMiddleware, jobController.acceptDirectHire);
@@ -98,6 +101,23 @@ app.get('/api/opportunities/nearby', nearbyController.getNearbyOpportunities);
 // 10. Impact Dashboards
 app.get('/api/impact', impactController.getGlobalImpact);
 app.get('/api/impact/users/:id', impactController.getUserImpact);
+
+// 11. Admin Panel
+app.get('/api/admin/stats', authMiddleware, adminAuth, adminController.getStats);
+app.get('/api/admin/users', authMiddleware, adminAuth, adminController.getUsers);
+app.delete('/api/admin/users/:id', authMiddleware, adminAuth, adminController.deleteUser);
+app.get('/api/admin/gigs', authMiddleware, adminAuth, adminController.getGigs);
+app.delete('/api/admin/gigs/:id', authMiddleware, adminAuth, adminController.deleteGig);
+
+// Advanced Admin Features
+app.get('/api/admin/verification/students', authMiddleware, adminAuth, adminController.getUnverifiedStudents);
+app.put('/api/admin/verification/students/:id/verify', authMiddleware, adminAuth, adminController.verifyStudent);
+
+app.get('/api/admin/disputes/jobs', authMiddleware, adminAuth, adminController.getDisputedJobs);
+app.put('/api/admin/disputes/jobs/:id/resolve', authMiddleware, adminAuth, adminController.resolveDispute);
+
+app.get('/api/admin/resources', authMiddleware, adminAuth, adminController.getResources);
+app.delete('/api/admin/resources/:id', authMiddleware, adminAuth, adminController.deleteResource);
 
 // Centralized error handling
 app.use((err, req, res, next) => {

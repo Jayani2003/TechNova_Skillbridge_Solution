@@ -319,12 +319,32 @@ exports.acceptDirectHire = async (req, res) => {
     }
 
     await connection.commit();
-    res.json({ message: accept ? 'Hiring offer accepted!' : 'Hiring offer declined.' });
+    res.json({ message: 'Direct hire proposal accepted and job started!' });
   } catch (error) {
     await connection.rollback();
-    console.error(error);
-    res.status(500).json({ message: 'Error processing hiring proposal.' });
+    console.error('Error accepting direct hire:', error);
+    res.status(500).json({ message: 'Error accepting direct hire.' });
   } finally {
     connection.release();
+  }
+};
+
+exports.reportDispute = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // Ensure the user is either the poster or the worker of the job
+    const [jobs] = await db.query('SELECT * FROM jobs WHERE id = ? AND (poster_id = ? OR worker_id = ?)', [id, userId, userId]);
+    
+    if (jobs.length === 0) {
+      return res.status(403).json({ message: 'You are not authorized to report a dispute for this job.' });
+    }
+
+    await db.query('UPDATE jobs SET has_dispute = TRUE WHERE id = ?', [id]);
+    res.json({ message: 'Issue reported to admin successfully.' });
+  } catch (error) {
+    console.error('Error reporting dispute:', error);
+    res.status(500).json({ message: 'Error reporting dispute.' });
   }
 };
