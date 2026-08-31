@@ -34,6 +34,9 @@ const Gigs = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showAppsModal, setShowAppsModal] = useState(false);
+  const [showMsgModal, setShowMsgModal] = useState(false);
+  const [msgContent, setMsgContent] = useState('');
+  const [msgRecipient, setMsgRecipient] = useState(null);
   
   // Search & Filter
   const [search, setSearch] = useState('');
@@ -181,6 +184,27 @@ const Gigs = () => {
     }
   };
 
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!msgContent.trim() || !msgRecipient) return;
+
+    setLoading(true);
+    try {
+      await api.post('/messages', {
+        receiver_id: msgRecipient.id,
+        content: msgContent
+      });
+      setSuccess(`Message sent to ${msgRecipient.name}! You can continue the conversation in your Messages tab.`);
+      setMsgContent('');
+      setMsgRecipient(null);
+      setShowMsgModal(false);
+    } catch (err) {
+      setError(err.message || 'Error sending message.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const viewApplications = async (gig) => {
     try {
       setLoading(true);
@@ -226,6 +250,7 @@ const Gigs = () => {
     const gigId = querySelected || hashSelected;
 
     if (!gigId) {
+      setSelectedGig(null);
       return;
     }
 
@@ -422,13 +447,28 @@ const Gigs = () => {
                       <span>Review Applicants ({applications.length || 0})</span>
                     </button>
                   ) : (
-                    <button
-                      onClick={() => setShowApplyModal(true)}
-                      className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
-                    >
-                      <Send size={16} />
-                      <span>Apply for Gig</span>
-                    </button>
+                    <div className="flex w-full gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setMsgRecipient({ id: selectedGig.poster_id, name: selectedGig.poster_name });
+                          setShowMsgModal(true);
+                        }}
+                        className="flex-[1] bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-900/50 py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
+                      >
+                        <MessageCircle size={16} />
+                        <span>Message</span>
+                      </button>
+                      <button
+                        onClick={() => setShowApplyModal(true)}
+                        className="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
+                      >
+                        <Send size={16} />
+                        <span>Apply for Gig</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -744,6 +784,19 @@ const Gigs = () => {
                         <span>Hire Student</span>
                       </button>
                       <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setMsgRecipient({ id: app.applicant_id, name: app.applicant_name });
+                          setShowMsgModal(true);
+                        }}
+                        className="flex-1 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-900/50 px-4 py-2.5 rounded-xl font-bold text-xs transition text-center flex items-center justify-center gap-1.5"
+                      >
+                        <MessageCircle size={14} />
+                        <span>Message</span>
+                      </button>
+                      <button 
                         onClick={() => handleRejectApplicant(app.id)}
                         className="flex-1 bg-slate-900 hover:bg-red-950/20 text-slate-400 hover:text-red-400 border border-slate-850 px-4 py-2.5 rounded-xl font-bold text-xs transition text-center"
                       >
@@ -758,6 +811,47 @@ const Gigs = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Message Modal */}
+      {showMsgModal && msgRecipient && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative">
+            <button 
+              onClick={() => {
+                setShowMsgModal(false);
+                setMsgRecipient(null);
+              }}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
+            >
+              <X size={16} />
+            </button>
+
+            <h3 className="text-xl font-bold font-outfit text-white mb-2">Message {msgRecipient.name}</h3>
+            <p className="text-xs text-slate-400 mb-6">Send a direct message regarding this gig.</p>
+
+            <form onSubmit={handleSendMessage} className="space-y-4">
+              <div>
+                <textarea 
+                  value={msgContent}
+                  onChange={(e) => setMsgContent(e.target.value)}
+                  placeholder="Type your message here..."
+                  rows={4}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-emerald-500 transition resize-none"
+                  required
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-semibold text-sm transition mt-4 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20"
+              >
+                {loading ? 'Sending...' : 'Send Message'}
+              </button>
+            </form>
           </div>
         </div>
       )}

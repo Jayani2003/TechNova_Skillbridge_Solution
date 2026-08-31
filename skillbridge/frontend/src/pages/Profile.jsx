@@ -177,6 +177,7 @@ const Profile = () => {
   }
 
   const isStudent = profileData.user_type === 'STUDENT';
+  const isAdmin = profileData.user_type === 'ADMIN';
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
@@ -193,7 +194,7 @@ const Profile = () => {
             />
             <div>
               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest bg-emerald-950/60 border border-emerald-900/50 px-2 py-0.5 rounded">
-                {isStudent ? '🎓 Student' : '👤 Community Member'}
+                {isStudent ? '🎓 Student' : isAdmin ? '🛡️ Admin' : '👤 Community Member'}
               </span>
               <h1 className="text-2xl font-extrabold font-outfit text-white mt-1 leading-tight">{profileData.full_name}</h1>
               <p className="text-xs text-slate-400 font-semibold mt-1">
@@ -416,6 +417,12 @@ const Profile = () => {
                     />
                   </div>
                 </div>
+              ) : isAdmin ? (
+                /* Admin Specific Edit (None beyond basic details) */
+                <div className="space-y-4 pt-4 border-t border-slate-850/60">
+                  <h4 className="text-xs font-bold text-purple-400 uppercase tracking-widest">🛡️ Admin details</h4>
+                  <p className="text-xs text-slate-400">System administrators do not have additional profile fields.</p>
+                </div>
               ) : (
                 /* Community Specific Edit */
                 <div className="space-y-4 pt-4 border-t border-slate-850/60">
@@ -504,6 +511,14 @@ const Profile = () => {
                       <p className="text-slate-400">Faculty: <span className="font-semibold text-slate-200">{profileData.faculty}</span></p>
                       <p className="text-slate-400">Academic Year: <span className="font-semibold text-slate-200">{profileData.academic_year}</span></p>
                       <p className="text-slate-400">Degree: <span className="font-semibold text-slate-200">{profileData.degree_program}</span></p>
+                    </div>
+                  </div>
+                ) : isAdmin ? (
+                  <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3 shadow-md">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">🛡️ Role Specifications</h3>
+                    <div className="space-y-2 text-xs">
+                      <p className="text-slate-400">Access Level: <span className="font-semibold text-purple-400">System Administrator</span></p>
+                      <p className="text-slate-400">Privileges: <span className="font-semibold text-slate-200">Full Platform Management</span></p>
                     </div>
                   </div>
                 ) : (

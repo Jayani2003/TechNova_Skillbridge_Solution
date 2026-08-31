@@ -22,8 +22,12 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const userData = await login(email, password);
+      if (userData.user_type === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.message || 'Incorrect email or password.');
     } finally {
@@ -73,7 +77,10 @@ const Login = () => {
                 <Mail size={16} />
               </div>
               <input
+                id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 text-sm placeholder-slate-600 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition"
@@ -92,7 +99,10 @@ const Login = () => {
                 <Key size={16} />
               </div>
               <input
+                id="password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 text-sm placeholder-slate-600 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition"

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 const Home = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [impact, setImpact] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -40,10 +40,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-
     // Fetch real global impact stats and live active listings
     const loadHomeData = async () => {
       try {
@@ -76,12 +72,20 @@ const Home = () => {
           >
             {theme === 'dark' ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-indigo-400" />}
           </button>
-          <Link to="/login" className="text-slate-400 hover:text-white text-sm font-medium transition">
-            Sign In
-          </Link>
-          <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-900/20">
-            Sign Up platform
-          </Link>
+          {isAuthenticated ? (
+            <Link to={user?.user_type === 'ADMIN' ? '/admin' : '/dashboard'} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-900/20">
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="text-slate-400 hover:text-white text-sm font-medium transition">
+                Sign In
+              </Link>
+              <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-900/20">
+                Sign Up platform
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -101,13 +105,22 @@ const Home = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-          <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
-            <span>Get Started Now</span>
-            <ArrowRight size={18} />
-          </Link>
-          <Link to="/login" className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center">
-            Sign In to Dashboard
-          </Link>
+          {isAuthenticated ? (
+            <Link to={user?.user_type === 'ADMIN' ? '/admin' : '/dashboard'} className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
+              <span>Go to Dashboard</span>
+              <ArrowRight size={18} />
+            </Link>
+          ) : (
+            <>
+              <Link to="/register" className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
+                <span>Get Started Now</span>
+                <ArrowRight size={18} />
+              </Link>
+              <Link to="/login" className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 px-8 py-4 rounded-2xl font-semibold transition flex items-center justify-center">
+                Sign In to Dashboard
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Quick Real Stats Grid */}
