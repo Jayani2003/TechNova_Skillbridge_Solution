@@ -96,8 +96,6 @@ const MainLayout = ({ children }) => {
   if (user && user.user_type === 'ADMIN') {
     navItems = [
       { name: 'Admin Panel', path: '/admin', icon: Shield },
-      { name: 'Messages', path: '/messages', icon: MessageSquare, badge: unreadMessages },
-      { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadNotifications },
       { name: 'My Profile', path: '/profile', icon: User },
     ];
   } else {
@@ -165,6 +163,8 @@ const MainLayout = ({ children }) => {
               <span className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
                 {user.user_type === 'STUDENT' ? (
                   <span className="text-emerald-400">🎓 Student</span>
+                ) : user.user_type === 'ADMIN' ? (
+                  <span className="text-purple-400">🛡️ Admin</span>
                 ) : (
                   <span className="text-orange-400">👤 Community</span>
                 )}

@@ -23,6 +23,7 @@ const Messages = () => {
   const [messageInput, setMessageInput] = useState('');
   
   // Scrolling
+  const chatContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,12 @@ const Messages = () => {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }, 100);
   };
 
@@ -165,7 +171,7 @@ const Messages = () => {
             </div>
 
             {/* Chat list */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-5 space-y-4">
               {messages.map(msg => {
                 const isMine = msg.sender_id === user.id;
                 return (

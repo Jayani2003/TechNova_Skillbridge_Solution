@@ -138,7 +138,7 @@ const Register = () => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
           {/* Section: Common Information */}
           <div className="bg-slate-950/50 border border-slate-800/60 rounded-2xl p-5 space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2 mb-2">Common Credentials</h3>
@@ -152,6 +152,7 @@ const Register = () => {
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                   placeholder="e.g. Alex Fernando"
+                  autoComplete="name"
                   required
                 />
               </div>
@@ -165,6 +166,7 @@ const Register = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                     placeholder="name@domain.com"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -178,6 +180,7 @@ const Register = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                 />
               </div>
@@ -327,6 +330,7 @@ const Register = () => {
                     onChange={(e) => setStudentEmail(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder-slate-700 focus:outline-none transition"
                     placeholder="student123@fot.ruh.ac.lk"
+                    autoComplete="off"
                     required
                   />
                 </div>

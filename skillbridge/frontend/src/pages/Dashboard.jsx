@@ -37,6 +37,11 @@ const Dashboard = () => {
       return;
     }
 
+    if (user.user_type === 'ADMIN') {
+      navigate('/admin');
+      return;
+    }
+
     const loadDashboardData = async () => {
       try {
         setLoading(true);
