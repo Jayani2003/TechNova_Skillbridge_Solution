@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { geocodeLocation } from '../services/geocode';
 import { Shield, Sparkles, User, GraduationCap, MapPin, Mail, Key, Phone, ArrowRight, ChevronLeft } from 'lucide-react';
 
 const Register = () => {
@@ -56,25 +57,27 @@ const Register = () => {
       return;
     }
 
-    const payload = {
-      full_name: fullName,
-      email: finalEmail,
-      password,
-      phone,
-      user_type: userType,
-      location,
-      profile_image: profileImage || null,
-      latitude: 6.0535 + (Math.random() - 0.5) * 0.02, // Simulate coordinates around Matara
-      longitude: 80.5332 + (Math.random() - 0.5) * 0.02,
-      whatsapp_no: whatsappNo,
+    setLoading(true);
+    try {
+      const { latitude, longitude } = await geocodeLocation(location);
+
+      const payload = {
+        full_name: fullName,
+        email: finalEmail,
+        password,
+        phone,
+        user_type: userType,
+        location,
+        profile_image: profileImage || null,
+        latitude,
+        longitude,
+        whatsapp_no: whatsappNo,
       ...(userType === 'STUDENT'
         ? { university, faculty, department, student_registration_no: studentRegistrationNo, student_email: studentEmail, academic_year: academicYear, degree_program: degreeProgram }
         : { occupation, business_name: businessName, services }
       )
     };
 
-    setLoading(true);
-    try {
       await register(payload);
       navigate('/dashboard');
     } catch (err) {

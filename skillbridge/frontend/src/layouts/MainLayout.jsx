@@ -134,9 +134,9 @@ const MainLayout = ({ children }) => {
       {/* Sidebar Navigation */}
       <aside className={`
         fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:relative md:translate-x-0 transition duration-200 ease-in-out
+        md:sticky md:top-0 md:translate-x-0 transition duration-200 ease-in-out
         w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-30
-        h-full min-h-screen
+        h-full md:h-screen
       `}>
         {/* Sidebar Header */}
         <div className="h-20 flex items-center gap-3 px-6 border-b border-slate-800">
@@ -246,7 +246,7 @@ const MainLayout = ({ children }) => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 md:h-screen md:overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-0">
         <main className="p-4 md:p-8 flex-1">
           {children}
         </main>

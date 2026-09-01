@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { geocodeLocation } from '../services/geocode';
 import { 
   Plus, 
   Search, 
@@ -18,7 +19,8 @@ import {
   Star,
   Zap,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  MessageCircle
 } from 'lucide-react';
 
 const Gigs = () => {
@@ -123,6 +125,8 @@ const Gigs = () => {
 
     setLoading(true);
     try {
+      const { latitude, longitude } = await geocodeLocation(location);
+
       await api.post('/gigs', {
         title,
         description,
@@ -133,8 +137,8 @@ const Gigs = () => {
         deadline,
         duration,
         skills: skillsArr,
-        latitude: 6.0725 + (Math.random() - 0.5) * 0.01, // Near faculty location
-        longitude: 80.5750 + (Math.random() - 0.5) * 0.01
+        latitude,
+        longitude
       });
       
       setSuccess('Gig posted successfully! Matching workers have been notified.');

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { geocodeLocation } from '../services/geocode';
 import { 
   Plus, 
   Search, 
@@ -120,6 +121,7 @@ const DonateResources = () => {
 
     setLoading(true);
     try {
+      const { latitude, longitude } = await geocodeLocation(location);
       await api.post('/resources', {
         title,
         description,
@@ -127,8 +129,8 @@ const DonateResources = () => {
         item_condition: itemCondition,
         type: formType,
         location,
-        latitude: 6.0725 + (Math.random() - 0.5) * 0.02,
-        longitude: 80.5750 + (Math.random() - 0.5) * 0.02
+        latitude,
+        longitude
       });
 
       setSuccess(`Resource ${formType.toLowerCase()} posted successfully! Matches are calculated dynamically.`);
@@ -341,20 +343,20 @@ const DonateResources = () => {
               </div>
 
               {/* Action: Mark as received / Fulfill */}
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => handleClaimResource(selectedResource.id)}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20 cursor-pointer active:scale-[0.99]"
-                >
-                  <Gift size={16} />
-                  <span>
-                    {selectedResource.owner_id === user?.id 
-                      ? `Mark My ${selectedResource.type === 'DONATION' ? 'Donation' : 'Request'} as Completed` 
-                      : (selectedResource.type === 'DONATION' ? 'Mark Free Donation as Claimed' : 'Fulfill this Resource Request')}
-                  </span>
-                </button>
-              </div>
+              {selectedResource.owner_id === user?.id && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleClaimResource(selectedResource.id)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/20 cursor-pointer active:scale-[0.99]"
+                  >
+                    <Gift size={16} />
+                    <span>
+                      {`Mark My ${selectedResource.type === 'DONATION' ? 'Donation' : 'Request'} as Completed`}
+                    </span>
+                  </button>
+                </div>
+              )}
 
               {/* Resource Matching Engine list (Only visible when viewing a REQUEST!) */}
               {selectedResource.type === 'REQUEST' && selectedResource.matches && selectedResource.matches.length > 0 && (

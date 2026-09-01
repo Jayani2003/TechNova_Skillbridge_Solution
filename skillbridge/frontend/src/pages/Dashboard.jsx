@@ -266,34 +266,6 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Global Impact Dashboard Summary */}
-          {stats && (
-            <div className="bg-slate-900/30 border border-slate-800/60 rounded-3xl p-6 space-y-4 shadow-md">
-              <h3 className="text-sm font-bold font-outfit text-slate-300 flex items-center gap-2">
-                <Globe className="text-emerald-500" size={16} />
-                <span>Local Platform Impact metrics</span>
-              </h3>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850">
-                  <span className="text-lg font-bold text-white block">{stats.studentsConnected + stats.communityConnected}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Connected Locals</span>
-                </div>
-                <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850">
-                  <span className="text-lg font-bold text-white block">{stats.jobsCompleted}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Gigs Completed</span>
-                </div>
-                <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850">
-                  <span className="text-lg font-bold text-emerald-400 block">Rs. {stats.totalIncomeGenerated.toLocaleString()}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Income Created</span>
-                </div>
-                <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-850">
-                  <span className="text-lg font-bold text-green-400 block">Rs. {stats.estimatedCommunitySavings.toLocaleString()}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Estimated Savings</span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right Side - Notifications & Quick Messaging */}

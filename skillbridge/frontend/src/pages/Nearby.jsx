@@ -64,7 +64,7 @@ const Nearby = () => {
         <h1 className="text-3xl font-extrabold font-outfit text-white">Nearby Opportunities</h1>
         <p className="text-sm text-slate-400 mt-1 flex items-center gap-1.5">
           <Info size={14} className="text-emerald-400" />
-          <span>Map includes gigs, boarding, donation offers/requests, student workers, and community workers. Locations are slightly shifted for privacy.</span>
+          <span>Map includes gigs, boarding, student workers, and community workers. Locations are slightly shifted for privacy.</span>
         </p>
       </div>
 
@@ -93,7 +93,7 @@ const Nearby = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
 
-              {opportunities.map((item) => (
+              {opportunities.filter(item => item.itemType !== 'DONATION' && item.itemType !== 'REQUEST').map((item) => (
                 <Marker 
                   key={item.id} 
                   position={[item.latitude, item.longitude]}
@@ -224,14 +224,6 @@ const Nearby = () => {
                 <span className="text-slate-350">Boarding Houses</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-green-500 border border-slate-950"></span>
-                <span className="text-slate-350">Donation Offers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-pink-500 border border-slate-950"></span>
-                <span className="text-slate-350">Donation Requests</span>
-              </div>
-              <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-purple-500 border border-slate-950"></span>
                 <span className="text-slate-350">Student Workers</span>
               </div>
@@ -245,7 +237,7 @@ const Nearby = () => {
           <div className="space-y-4 pt-4 border-t border-slate-800">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nearby Opportunities List</h3>
             <div className="space-y-3">
-              {opportunities.slice(0, 10).map((item) => (
+              {opportunities.filter(item => item.itemType !== 'DONATION' && item.itemType !== 'REQUEST').slice(0, 10).map((item) => (
                 <div key={item.id} className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex items-start gap-3">
                   <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: item.color }}></div>
                   <div className="overflow-hidden">
