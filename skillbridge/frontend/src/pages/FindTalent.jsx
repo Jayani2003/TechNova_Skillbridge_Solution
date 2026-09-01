@@ -105,6 +105,7 @@ const FindTalent = () => {
     }
 
     if (!selectedId) {
+      setSelectedTalent(null);
       return;
     }
 

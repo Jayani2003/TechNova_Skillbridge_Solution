@@ -198,7 +198,7 @@ const Profile = () => {
               </span>
               <h1 className="text-2xl font-extrabold font-outfit text-white mt-1 leading-tight">{profileData.full_name}</h1>
               <p className="text-xs text-slate-400 font-semibold mt-1">
-                {isStudent ? `${profileData.faculty} • ${profileData.university}` : `${profileData.occupation}`}
+                {isStudent ? `${profileData.faculty} • ${profileData.university}` : isAdmin ? 'System Administrator' : `${profileData.occupation}`}
               </p>
             </div>
           </div>
@@ -242,7 +242,7 @@ const Profile = () => {
       {/* Profile Body Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Side: Profile Details or Edit Form */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className={`space-y-6 ${isAdmin ? 'lg:col-span-12' : 'lg:col-span-8'}`}>
           {isEditing ? (
             /* ========================================================
                EDIT FORM VIEW
@@ -557,127 +557,131 @@ const Profile = () => {
               )}
 
               {/* Reviews and Ratings History */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-md">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Star size={14} className="text-amber-400 fill-amber-400" />
-                  <span>Feedback Ratings ({profileData.ratings?.length || 0})</span>
-                </h3>
+              {!isAdmin && (
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-md">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Star size={14} className="text-amber-400 fill-amber-400" />
+                    <span>Feedback Ratings ({profileData.ratings?.length || 0})</span>
+                  </h3>
 
-                <div className="divide-y divide-slate-850">
-                  {profileData.ratings && profileData.ratings.length > 0 ? (
-                    profileData.ratings.map(review => (
-                      <div key={review.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-2">
-                            <img 
-                              src={review.reviewer_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${review.reviewer_name}`} 
-                              alt={review.reviewer_name}
-                              className="w-7 h-7 rounded-full bg-slate-950 border border-slate-800"
-                            />
-                            <div>
-                              <span className="font-semibold text-slate-200 text-xs block leading-tight">{review.reviewer_name}</span>
-                              <span className="text-[9px] text-slate-500 block mt-0.5">Job: {review.job_title}</span>
+                  <div className="divide-y divide-slate-850">
+                    {profileData.ratings && profileData.ratings.length > 0 ? (
+                      profileData.ratings.map(review => (
+                        <div key={review.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={review.reviewer_image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${review.reviewer_name}`} 
+                                alt={review.reviewer_name}
+                                className="w-7 h-7 rounded-full bg-slate-950 border border-slate-800"
+                              />
+                              <div>
+                                <span className="font-semibold text-slate-200 text-xs block leading-tight">{review.reviewer_name}</span>
+                                <span className="text-[9px] text-slate-500 block mt-0.5">Job: {review.job_title}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex text-amber-400 items-center gap-0.5 text-xs font-bold">
+                              <Star size={12} className="fill-amber-400" />
+                              <span>{review.rating_value}.0</span>
                             </div>
                           </div>
-                          
-                          <div className="flex text-amber-400 items-center gap-0.5 text-xs font-bold">
-                            <Star size={12} className="fill-amber-400" />
-                            <span>{review.rating_value}.0</span>
-                          </div>
-                        </div>
 
-                        <p className="text-xs text-slate-400 leading-relaxed italic bg-slate-950/20 p-3 rounded-xl border border-slate-850/40">
-                          "{review.feedback}"
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-slate-500 py-4 text-center">No reviews or ratings received yet.</p>
-                  )}
+                          <p className="text-xs text-slate-400 leading-relaxed italic bg-slate-950/20 p-3 rounded-xl border border-slate-850/40">
+                            "{review.feedback}"
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-slate-500 py-4 text-center">No reviews or ratings received yet.</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Right Side: Reputation & Personal Impact Grid */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Opportunity Reputation Score */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Award size={16} className="text-emerald-500" />
-              <span>Platform Reputation Score</span>
-            </h3>
+        {!isAdmin && (
+          <div className="lg:col-span-4 space-y-6">
+            {/* Opportunity Reputation Score */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Award size={16} className="text-emerald-500" />
+                <span>Platform Reputation Score</span>
+              </h3>
 
-            <div className="text-center py-4 bg-slate-950/60 border border-slate-850 rounded-2xl">
-              <span className="text-5xl font-black font-outfit text-white block">
-                {profileData.opportunity_score}
-              </span>
-              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mt-1 block">
-                Opportunity Score
-              </span>
-            </div>
-
-            {profileData.opportunity_score_breakdown && (
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
-                  <span className="text-slate-550">Experience rating</span>
-                  <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.experience}%</span>
-                </div>
-                <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
-                  <span className="text-slate-550">Availability factor</span>
-                  <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.availability}%</span>
-                </div>
-                <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
-                  <span className="text-slate-550">Reliability factor</span>
-                  <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.reliability}%</span>
-                </div>
-                <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
-                  <span className="text-slate-550">Profile details completion</span>
-                  <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.profileCompleteness}%</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Personal Economic & Community Impact Grid */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Zap size={16} className="text-emerald-500 fill-emerald-500" />
-              <span>Personal SkillBridge Impact</span>
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
-                <Briefcase size={16} className="text-emerald-400 mx-auto" />
-                <span className="text-base font-bold text-white block">{impactData.jobsCompleted}</span>
-                <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Jobs Done</span>
-              </div>
-
-              <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
-                <Coins size={16} className="text-amber-400 mx-auto" />
-                <span className="text-xs font-bold text-emerald-400 block truncate">
-                  Rs. {isStudent ? impactData.earned.toLocaleString() : impactData.spent.toLocaleString()}
+              <div className="text-center py-4 bg-slate-950/60 border border-slate-850 rounded-2xl">
+                <span className="text-5xl font-black font-outfit text-white block">
+                  {profileData.opportunity_score}
                 </span>
-                <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">
-                  {isStudent ? 'Earnings' : 'Investments'}
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mt-1 block">
+                  Opportunity Score
                 </span>
               </div>
 
-              <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
-                <Clock size={16} className="text-blue-400 mx-auto" />
-                <span className="text-base font-bold text-white block">{impactData.hoursContributed}</span>
-                <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Hours Done</span>
-              </div>
+              {profileData.opportunity_score_breakdown && (
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
+                    <span className="text-slate-550">Experience rating</span>
+                    <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.experience}%</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
+                    <span className="text-slate-550">Availability factor</span>
+                    <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.availability}%</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
+                    <span className="text-slate-550">Reliability factor</span>
+                    <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.reliability}%</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-950/40 p-2 rounded-lg">
+                    <span className="text-slate-550">Profile details completion</span>
+                    <span className="font-bold text-slate-200">{profileData.opportunity_score_breakdown.profileCompleteness}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
-              <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
-                <HeartHandshake size={16} className="text-red-400 mx-auto" />
-                <span className="text-base font-bold text-white block">{impactData.peopleHelped}</span>
-                <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Locals Helped</span>
+            {/* Personal Economic & Community Impact Grid */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Zap size={16} className="text-emerald-500 fill-emerald-500" />
+                <span>Personal SkillBridge Impact</span>
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
+                  <Briefcase size={16} className="text-emerald-400 mx-auto" />
+                  <span className="text-base font-bold text-white block">{impactData.jobsCompleted}</span>
+                  <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Jobs Done</span>
+                </div>
+
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
+                  <Coins size={16} className="text-amber-400 mx-auto" />
+                  <span className="text-xs font-bold text-emerald-400 block truncate">
+                    Rs. {isStudent ? impactData.earned.toLocaleString() : impactData.spent.toLocaleString()}
+                  </span>
+                  <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">
+                    {isStudent ? 'Earnings' : 'Investments'}
+                  </span>
+                </div>
+
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
+                  <Clock size={16} className="text-blue-400 mx-auto" />
+                  <span className="text-base font-bold text-white block">{impactData.hoursContributed}</span>
+                  <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Hours Done</span>
+                </div>
+
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-2xl text-center space-y-1">
+                  <HeartHandshake size={16} className="text-red-400 mx-auto" />
+                  <span className="text-base font-bold text-white block">{impactData.peopleHelped}</span>
+                  <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider block">Locals Helped</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

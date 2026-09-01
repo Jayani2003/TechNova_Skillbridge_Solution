@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { geocodeLocation } from '../services/geocode';
 import { 
   Plus, 
   MapPin, 
@@ -108,6 +109,7 @@ const Boarding = () => {
   useEffect(() => {
     const selectedId = searchParams.get('selected');
     if (!selectedId) {
+      setSelectedBoarding(null);
       return;
     }
 
@@ -203,6 +205,7 @@ const Boarding = () => {
             .catch(() => {});
         }
       } else {
+        const { latitude, longitude } = await geocodeLocation(location);
         await api.post('/boarding', {
           title,
           description,
@@ -214,8 +217,8 @@ const Boarding = () => {
           facilities: formFacilities,
           contact_method: contactMethod,
           status: boardingStatus,
-          latitude: 6.0725 + (Math.random() - 0.5) * 0.01,
-          longitude: 80.5750 + (Math.random() - 0.5) * 0.01
+          latitude,
+          longitude
         });
         setSuccess('Boarding lodging space listed successfully!');
       }
@@ -277,9 +280,7 @@ const Boarding = () => {
         <div>
           <h1 className="text-3xl font-extrabold font-outfit text-white">Boarding Lodging</h1>
           <p className="text-sm text-slate-400 mt-1">Discover verified accommodations, boarding houses, and rooms near the university faculties.</p>
-          {!canCreateBoarding && (
-            <p className="text-xs text-amber-400 mt-2">Students can view and request boarding, but only community members can list and manage boarding facilities.</p>
-          )}
+
         </div>
         {canCreateBoarding && (
           <button
